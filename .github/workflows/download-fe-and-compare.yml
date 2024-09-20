@@ -19,8 +19,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Get FE Filename
+      - name: Download Fiddler Everywhere with original filename
         run: |
-          FILE_NAME=$(curl -L -J -O "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows" 2>&1 | grep -o '[^/]*$')
-          echo "Downloaded file: $FILE_NAME"
+          # Use curl to download the file with the name provided by the server
+          curl -L -OJ https://www.telerik.com/download/fiddler/fiddler-everywhere-windows
+
+      - name: List downloaded file
+        run: dir  # 'dir' is the command to list files in Windows
+
 
