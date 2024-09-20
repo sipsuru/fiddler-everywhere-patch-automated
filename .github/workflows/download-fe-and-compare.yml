@@ -22,13 +22,15 @@ jobs:
       - name: Get FE Filename
         run: |
           $url = "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows"
-          $webClient = New-Object System.Net.WebClient
-          $html = $webClient.DownloadString($url)
+          $response = Invoke-WebRequest -Uri $url
+          $html = $response.Content
 
-          # Use regex to find the download link in the HTML
-          if ($html -match 'href="([^"]*Fiddler Everywhere[^"]*\.exe)"') {
-              $downloadUrl = $matches[1]
-              $filename = [System.IO.Path]::GetFileName($downloadUrl)
+          # Look for the download link in the HTML
+          $downloadLink = $null
+          $html -match '<a[^>]*href="([^"]*Fiddler Everywhere[^"]*\.exe)"' | Out-Null
+          if ($matches) {
+              $downloadLink = $matches[1]
+              $filename = [System.IO.Path]::GetFileName($downloadLink)
           } else {
               $filename = "Filename not found in HTML."
           }
