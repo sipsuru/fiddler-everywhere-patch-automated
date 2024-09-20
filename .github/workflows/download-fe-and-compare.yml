@@ -34,7 +34,10 @@ jobs:
                   $filename = "Unknown filename"
               }
           } else {
-              $filename = "No Content-Disposition header"
+              # Fallback to URL parsing
+              $filename = [System.IO.Path]::GetFileName($url)
+              Write-Host "No Content-Disposition header; using URL filename: $filename"
           }
 
           Write-Host "Download filename: $filename"
+
