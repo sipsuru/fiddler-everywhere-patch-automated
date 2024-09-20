@@ -1,0 +1,40 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Download & Compere FE
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      current-version:
+        required: true
+        type: string
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # Steps represent a sequence of tasks that will be executed as part of the job
+  download-fe:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    steps:
+      - name: Get FE Filename
+        run: |
+          $url = "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows"
+          $request = [System.Net.WebRequest]::Create($url)
+          $request.Method = "HEAD"
+          $response = $request.GetResponse()
+          $disposition = $response.Headers["Content-Disposition"]
+
+          if ($disposition) {
+              if ($disposition -match 'filename="(.+)"') {
+                  $filename = $matches[1]
+              } else {
+                  $filename = "Unknown filename"
+              }
+          } else {
+              $filename = "No Content-Disposition header"
+          }
+
+          Write-Host "Download filename: $filename"
