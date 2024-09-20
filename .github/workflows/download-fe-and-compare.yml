@@ -22,22 +22,15 @@ jobs:
       - name: Get FE Filename
         run: |
           $url = "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows"
-          $request = [System.Net.WebRequest]::Create($url)
-          $request.Method = "HEAD"
-          $response = $request.GetResponse()
-          $disposition = $response.Headers["Content-Disposition"]
+          $webClient = New-Object System.Net.WebClient
+          $html = $webClient.DownloadString($url)
 
-          if ($disposition) {
-              if ($disposition -match 'filename="(.+)"') {
-                  $filename = $matches[1]
-              } else {
-                  $filename = "Unknown filename"
-              }
+          # Use regex to find the download link in the HTML
+          if ($html -match 'href="([^"]*Fiddler Everywhere[^"]*\.exe)"') {
+              $downloadUrl = $matches[1]
+              $filename = [System.IO.Path]::GetFileName($downloadUrl)
           } else {
-              # Fallback to URL parsing
-              $filename = [System.IO.Path]::GetFileName($url)
-              Write-Host "No Content-Disposition header; using URL filename: $filename"
+              $filename = "Filename not found in HTML."
           }
 
           Write-Host "Download filename: $filename"
-
