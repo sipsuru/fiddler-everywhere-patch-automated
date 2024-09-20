@@ -1,0 +1,76 @@
+name: Continuous Patch 
+
+env:
+  CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
+  SCRAPED_VERSION: ""
+
+on:
+  # Continous (sheduled) run here
+  workflow_dispatch:
+
+jobs:
+  scrape-fe-version-and-set-env:
+
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [22.9.0]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: node .
+
+    - name: Read & Set Env
+      run: |
+        $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
+        echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
+
+  download-patch-utils:
+    runs-on: windows-lates
+   
+    steps:
+      - name: Download Yukihana Patch
+        run: 
+        
+  # unpack-unrar:
+  
+  #   runs-on: windows-latest
+
+  #   steps:
+  #     - name: Download UnRar
+  #       run: |
+  #         $url = "https://www.rarlab.com/rar/unrarw64.exe"
+  #         Invoke-WebRequest -Uri $url -OutFile unrarw64.exe
+  #       shell: pwsh
+
+  #     - name: Extract unrar.exe
+  #       run: |
+  #         & ".\unrarw64.exe" /s
+  #       shell: pwsh
+
+  #     - name: Clean up unrarw64.exe
+  #       run: Remove-Item .\unrarw64.exe
+  #       shell: pwsh
+
+  #     - name: Verify UnRar Installation
+  #       run: |
+  #         & ".\unrar.exe" -v
+  #       shell: pwsh
+        
+  #     - name: Upload UnRar as Artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: unrar-extracted
+  #         path: .\unrar.exe
+
+  
+        
