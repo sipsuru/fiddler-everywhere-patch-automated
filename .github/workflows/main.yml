@@ -1,0 +1,32 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Compere FE Versions
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      current-version:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      current-version:
+        required: true
+        type: string
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # Steps represent a sequence of tasks that will be executed as part of the job
+  compare-fe-versions:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    
+    steps:
+      - name: Download Scraped Version Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: scraped-version-number
+
+      - 
+
