@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Install UnRar
+
+# Controls when the workflow will run
+on:
+  workflow_call:
+
+jobs:
+  install-unrar:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    steps:
+      - name: Download UnRar
+        run: |
+          $url = "https://www.rarlab.com/rar/unrarw64.exe"
+          Invoke-WebRequest -Uri $url -OutFile unrarw64.exe
+        shell: pwsh
+
+      - name: Extract unrar.exe
+        run: |
+          & ".\unrarw64.exe" /s
+        shell: pwsh
+
+      - name: Clean up unrarw64.exe
+        run: Remove-Item .\unrarw64.exe
+        shell: pwsh
+
+      - name: Verify UnRar Installation
+        run: |
+          & ".\unrar.exe" -v
+        shell: pwsh
+        
+      - name: Upload UnRar as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unrar-extracted
+          path: .\unrar.exe
