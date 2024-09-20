@@ -21,18 +21,6 @@ jobs:
     steps:
       - name: Get FE Filename
         run: |
-          $url = "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows"
-          $response = Invoke-WebRequest -Uri $url
-          $html = $response.Content
+          FILE_NAME=$(curl -L -J -O "https://www.telerik.com/download/fiddler/fiddler-everywhere-windows" 2>&1 | grep -o '[^/]*$')
+          echo "Downloaded file: $FILE_NAME"
 
-          # Look for the download link in the HTML
-          $downloadLink = $null
-          $html -match '<a[^>]*href="([^"]*Fiddler Everywhere[^"]*\.exe)"' | Out-Null
-          if ($matches) {
-              $downloadLink = $matches[1]
-              $filename = [System.IO.Path]::GetFileName($downloadLink)
-          } else {
-              $filename = "Filename not found in HTML."
-          }
-
-          Write-Host "Download filename: $filename"
