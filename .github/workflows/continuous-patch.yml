@@ -50,7 +50,7 @@ jobs:
 
   compare-versions:
     runs-on: windows-latest
-    # needs: scrape-fe-version-and-set-env
+    needs: scrape-fe-version-and-set-env
 
     outputs:
       should_continue: ${{ steps.should_continue.outputs.should_continue }}
