@@ -239,13 +239,17 @@ jobs:
         shell: pwsh
 
       - name: Extract exe 
-        run: 7z x FiddlerEverywhereSetup.exe -ofe_extracted
+        run: 7z x "FiddlerEverywhereSetup.exe" -o"fe_extracted"
 
+      - name: Extract app64 
+        run: 7z x "fe_extracted/$PLUGINSDIR/app-64.7z" -o"fe_app64"
+        shell: pwsh
+        
       - name: Upload Fiddler Everywhere Extracted folder as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fe-artifact
-          path: fe_extracted/
+          name: fe_app64
+          path: fe_app64/
 
   patch_fe:
     runs-on: windows-latest
@@ -273,14 +277,14 @@ jobs:
       - name: Download FE
         uses: actions/download-artifact@v4
         with:
-          name: fe-artifact
-          path: fe-artifact
+          name: fe_app64
+          path: fe_app64
 
       - name: List the contents of the downloaded artifacts
         run: |
           Get-ChildItem -Recurse yukihana-patch
           Get-ChildItem -Recurse madjos-patch
-          Get-ChildItem -Recurse fe-artifact
+          Get-ChildItem -Recurse fe_app64
         shell: pwsh
 
       # - name: Extract all artifacts into patches folder
