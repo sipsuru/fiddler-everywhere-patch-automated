@@ -242,7 +242,7 @@ jobs:
         run: 7z x "FiddlerEverywhereSetup.exe" -ofe_extracted
 
       - name: Extract app64 
-        run: 7z x "fe_extracted/$PLUGINSDIR/app-64.7z" -ofe_app64
+        run: 7z x ./fe_extracted/$PLUGINSDIR/app-64.7z -ofe_app64
         shell: pwsh
         
       - name: Upload Fiddler Everywhere Extracted folder as an artifact
