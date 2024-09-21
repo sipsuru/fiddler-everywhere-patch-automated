@@ -1,8 +1,5 @@
 name: Continuous Patch 
 
-env:
-  CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
-  
 on:
   push:
       branches:
