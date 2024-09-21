@@ -456,7 +456,7 @@ jobs:
       - scrape_fe_version
       
     env:
-      PATCHED_FE_NAME: ${{ needs.patch_fe.rename-fe.outputs.patched-fe-name }}
+      PATCHED_FE_NAME: ${{ needs.patch_fe.outputs.patched-fe-name }}
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     steps:
