@@ -312,7 +312,7 @@ jobs:
           $original_copy_hostpolicy = "FE/resources/app/out/WebServer/hostpolicy.original.dll"
           $yukihana_hostpolicy = "yukihana-patch/hostpolicy.dll"
 
-          if (Test-Path $original_hostpolicy -and Test-Path $yukihana_hostpolicy) {
+          if ((Test-Path $original_hostpolicy) -and (Test-Path $yukihana_hostpolicy)) {
             Rename-Item -Path $original_hostpolicy -Destination $original_copy_hostpolicy
             Copy-Item -Path $yukihana_hostpolicy -Destination $original_hostpolicy
             Write-Host "Renamed $original_fiddler with $original_copy_hostpolicy & Applied Yukihana Patch"
@@ -350,7 +350,7 @@ jobs:
           $source_index = "madjos-patch/server/index.js"
           $index_content = Get-Content -Path $source_index -Raw
           
-          if (Test-Path $source_server_folder -and Test-Path $source_index) {
+          if ((Test-Path $source_server_folder) -and (Test-Path $source_index)) {
             Copy-Item -Path $source_main -Destination $new_main
 
             $appended_content = $index_content + $main_content
