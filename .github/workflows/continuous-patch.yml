@@ -28,9 +28,6 @@ jobs:
       uses: actions/cache@v4
       with:
         path: utils/fe-version-scraper/node_modules
-        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
 
     - name: Install Node.js dependencies
       run: npm ci
@@ -39,7 +36,6 @@ jobs:
     - name: Run the Node.js script
       run: node .
       working-directory: utils/fe-version-scraper
-
 
     - name: Read & Set Env
       run: |
@@ -51,17 +47,18 @@ jobs:
     needs: scrape-fe-version-and-set-env
 
     steps:
-      - name: Compare Versions
-        id: version_compare
-        uses: frankfarrell/semver-tool@v3.4.0
-        with:
-          version: ${{ env.CURRENT_VERSION }}
-          operator: gt
-          compare_with: ${{ env.SCRAPED_VERSION }}
+    - name: Compare Versions
+      id: version_compare
+      run: |
+        if [ "$(printf '%s\n' "${{ env.SCRAPED_VERSION }}" "${{ env.CURRENT_VERSION }}" | sort -V | head -n1)" == "${{ env.SCRAPED_VERSION }}" ]; then
+          echo "result=false" >> $GITHUB_ENV
+        else
+          echo "result=true" >> $GITHUB_ENV
+        fi
 
-      - name: Set if Continue?
-        id: set_continue
-        run: echo "should_continue=${{ steps.version_compare.outputs.result }}" >> $GITHUB_OUTPUT
+    - name: Set if Continue?
+      id: set_continue
+      run: echo "should_continue=${{ env.result }}" >> $GITHUB_OUTPUT
 
   download-yukihana-patch:
     runs-on: windows-latest
@@ -71,18 +68,19 @@ jobs:
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
-        uses: frankfarrell/semver-tool@v3.4.0
-        with:
-          version: ${{ env.SCRAPED_VERSION }}
-          operator: gte
-          compare_with: '5.17.0'
+        run: |
+          if [ "$(printf '%s\n' "${{ env.SCRAPED_VERSION }}" "5.17.0" | sort -V | head -n1)" == "${{ env.SCRAPED_VERSION }}" ]; then
+            echo "scraped_version_check=false" >> $GITHUB_ENV
+          else
+            echo "scraped_version_check=true" >> $GITHUB_ENV
+          fi
 
       - name: Set Yukihana fiddler name (>= 5.17.0)
-        if: steps.scraped_version_check.outputs.result == 'true'
+        if: env.scraped_version_check == 'true'
         run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
 
       - name: Set Yukihana fiddler name (< 5.17.0)
-        if: steps.scraped_version_check.outputs.result == 'false'
+        if: env.scraped_version_check == 'false'
         run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
 
       - name: Create yukihana directory
@@ -93,11 +91,11 @@ jobs:
         shell: pwsh
 
       - name: Set Yukihana Release (if CURRENT_VERSION >= 5.17.0)
-        if: steps.scraped_version_check.outputs.result == 'true'
+        if: env.scraped_version_check == 'true'
         run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
 
       - name: Set Yukihana Release (if CURRENT_VERSION < 5.17.0) 
-        if: steps.scraped_version_check.outputs.result == 'false'
+        if: env.scraped_version_check == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
     
       - name: Download Yukihana Patch
