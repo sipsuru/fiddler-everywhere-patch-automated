@@ -361,24 +361,24 @@ jobs:
       - name: Patch main.XXX.js to main.XXX.original.js
         run: |
           $directory = 'FE/resources/app/out/WebServer/ClientApp/dist'
-    
-          $source_main = Get-ChildItem -Path $directory -Filter 'main*.*.js' | Where-Object { $_.Name -match '^main[.-][\w\d]+\.js$' }
+          
+          $source_main = Get-ChildItem -Path $directory -Filter "main*" | Where-Object { -not $_.PSIsContainer }
     
           if ($source_main) {
               # Extract original file name without extension
               $originalName = [System.IO.Path]::GetFileNameWithoutExtension($source_main.Name)
+              $originalFullPath = $source_main.FullName
         
               # Define the new file name in the format "original-name.original.js"
               $new_main_name = "$originalName.original.js"
         
               # Rename the file
-              Copy-Item -Path $source_main.FullName -Destination (Join-Path -Path $directory -ChildPath $new_main_name)
-
-              Write-Host "File renamed from $($source_main.Name) to $new_main_name"
+              Copy-Item -Path $originalFullPath -Destination (Join-Path -Path $directory -ChildPath $new_main_name)              
+              Write-Host "File renamed from $($source_main.Name) to $(Join-Path -Path $directory -ChildPath $new_main_name)"
 
               Write-Host "Finding and Replacing now"
 
-              $source_content = Get-Content -Path $source_main.FullName -Raw
+              $source_content = Get-Content -Path $originalFullPath -Raw
 
               $searchText1 = "https://api.getfiddler.com"
               $replaceText1 = "http://127.0.0.1:5678/api.getfiddler.com"
@@ -389,11 +389,11 @@ jobs:
               $finalUpdatedText = $updatedText1 -replace [regex]::Escape($searchText2), $replaceText2
 
               # Overwrite the file with the new content
-              Set-Content -Path $source_main.FullName -Value $finalUpdatedText
+              Set-Content -Path $originalFullPath -Value $finalUpdatedText
 
               echo "MAIN_XXX_NAME=$originalName" >> $env:GITHUB_ENV            
           } else {
-              Write-Host "No matching file found for main-xxx.js"
+            Write-Host "No file found starting with 'main' in the specified directory. (Main,XXX.js)"
           }
 
       - name: Clean madjos-patch
@@ -410,7 +410,7 @@ jobs:
           
           $jsonContent = @{
             "ClientApp\\dist\\$env:MAIN_XXX_NAME.js" = @{
-              "target" = "ClientApp\\dist\\ $env:MAIN_XXX_NAME.original.js"
+              "target" = "ClientApp\\dist\\$env:MAIN_XXX_NAME.original.js"
               "content" = ""
               "cur" = 0
               "start" = 0
@@ -452,21 +452,3 @@ jobs:
           name: "${{ env.NEW_FOLDER }}"
           path: "${{ env.NEW_FOLDER }}/"
           if-no-files-found: error
-          
-      # - name: Update Actions Repository Variable to released version
-      #   run: |
-      #     gh repo edit ${{ github.repository }} --update-var LATEST_PATCHED_VERSION=$env:SCRAPED_VERSION
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-
-      # - name: Extract all artifacts into patches folder
-      #   run: |
-      #     mkdir patches
-      #     Expand-Archive -Path "yukihana-patch/yukihana.zip" -DestinationPath "patches/yukihana"
-      #     Expand-Archive -Path "madjos-patch/madjos.zip" -DestinationPath "patches/madjos"
-      #     Expand-Archive -Path "fe-artifact/fe_extracted.zip" -DestinationPath "patches/fe_extracted"
-      #     Remove-Item "yukihana-patch/yukihana-patch.zip"
-      #     Remove-Item "madjos-patch/madjos.zip"
-      #     Remove-Item "fe-artifact/fe_extracted.zip"
-      #     Get-ChildItem -Recurse patches
-      #   shell: pwsh
