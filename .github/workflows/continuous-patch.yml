@@ -115,11 +115,11 @@ jobs:
         
       - name: Set Yukihana fiddler name (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "YUKIHANA_FIDDLER_NAME=fiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
 
       - name: Set Yukihana fiddler name (< 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'false'
-        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
 
       - name: Set YUKIHANA_FIDDLER_NAME as Output
         id: yukihana-fiddler-name
