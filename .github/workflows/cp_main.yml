@@ -361,39 +361,39 @@ jobs:
       - name: Patch main.XXX.js to main.XXX.original.js
         run: |
           $directory = 'FE/resources/app/out/WebServer/ClientApp/dist'
-          
-          $source_main = Get-ChildItem -Path $directory -Filter 'main*.*.js' | Where-Object { $_.Name -match '^main[.-][\w\d]+\.js$' }"
-          
+    
+          $source_main = Get-ChildItem -Path $directory -Filter 'main*.*.js' | Where-Object { $_.Name -match '^main[.-][\w\d]+\.js$' }
+    
           if ($source_main) {
-            # Extract original file name without extension
-            $originalName = [System.IO.Path]::GetFileNameWithoutExtension($source_main.Name)
-            
-            # Define the new file name in the format "original-name.original.js"
-            $new_main_name = "$originalName.original.js"
-            
-            # Rename the file
-            Copy-Item -Path $directory/$source_main.FullName -Destination $directory/$new_main_name
+              # Extract original file name without extension
+              $originalName = [System.IO.Path]::GetFileNameWithoutExtension($source_main.Name)
+        
+              # Define the new file name in the format "original-name.original.js"
+              $new_main_name = "$originalName.original.js"
+        
+              # Rename the file
+              Copy-Item -Path $source_main.FullName -Destination (Join-Path -Path $directory -ChildPath $new_main_name)
 
-            Write-Host "File renamed from $($source_main.Name) to $new_main_name"
+              Write-Host "File renamed from $($source_main.Name) to $new_main_name"
 
-            Write-Host "Finding and Replacing now"
+              Write-Host "Finding and Replacing now"
 
-            $source_content = Get-Content -Path $directory/$source_main -Raw
+              $source_content = Get-Content -Path $source_main.FullName -Raw
 
-            $searchText1 = "https://api.getfiddler.com"
-            $replaceText1 = "http://127.0.0.1:5678/api.getfiddler.com"
-            $updatedText1 = $directory/$source_main -replace [regex]::Escape($searchText1), $replaceText1
+              $searchText1 = "https://api.getfiddler.com"
+              $replaceText1 = "http://127.0.0.1:5678/api.getfiddler.com"
+              $updatedText1 = $source_content -replace [regex]::Escape($searchText1), $replaceText1
 
-            $searchText2 = "https://identity.getfiddler.com"
-            $replaceText2 = "http://127.0.0.1:5678/identity.getfiddler.com"
-            $finalUpdatedText = $updatedText1 -replace [regex]::Escape($searchText2), $replaceText2
+              $searchText2 = "https://identity.getfiddler.com"
+              $replaceText2 = "http://127.0.0.1:5678/identity.getfiddler.com"
+              $finalUpdatedText = $updatedText1 -replace [regex]::Escape($searchText2), $replaceText2
 
-            # Overwrite the file with the new content
-            Set-Content -Path $directory/$source_main -Value $finalUpdatedText
+              # Overwrite the file with the new content
+              Set-Content -Path $source_main.FullName -Value $finalUpdatedText
 
-            echo "MAIN_XXX_NAME=$originalName" >> $env:GITHUB_ENV            
+              echo "MAIN_XXX_NAME=$originalName" >> $env:GITHUB_ENV            
           } else {
-            Write-Host "No matching file found for main-xxx.js"
+              Write-Host "No matching file found for main-xxx.js"
           }
 
       - name: Clean madjos-patch
