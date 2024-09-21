@@ -18,17 +18,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - run: cd "utils/fe-version-scraper/"
-
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
-    - run: npm ci
-    - run: node .
+    - name: Install Node.js dependencies
+      run: npm ci
+      working-directory: utils/fe-version-scraper
+
+    - name: Run the Node.js script
+      run: node .
+      working-directory: utils/fe-version-scraper
 
     - name: Read & Set Env
       run: |
