@@ -437,7 +437,11 @@ jobs:
       - name: Rename FE 
         run: |
           if (Test-Path FE) {
-            Rename-Item -Path "FE" -NewName "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
+            $newName = "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
+            
+            Rename-Item -Path "FE" -NewName $newName
+            
+            echo "NEW_FOLDER=$newName" >> $env:GITHUB_ENV            
           } else {
             Write-Host "FE Folder not found!?"
           }
@@ -445,8 +449,8 @@ jobs:
       - name: Upload Artifact for Patched FE
         uses: actions/upload-artifact@v4
         with:
-          name: "Fiddler-Everywhere-V${{ env.SCRAPED_VERSION-Patched }}"
-          path: "Fiddler-Everywhere-V${{env.SCRAPED_VERSION-Patched }}/"
+          name: "${{ env.NEW_FOLDER }}"
+          path: "${{ env.NEW_FOLDER }}/"
           if-no-files-found: error
           
       # - name: Update Actions Repository Variable to released version
