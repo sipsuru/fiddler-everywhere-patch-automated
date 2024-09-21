@@ -53,7 +53,7 @@ jobs:
     - name: Compare Versions
       id: version_compare
       run: |
-        i$scrapedVersion = "${{ env.SCRAPED_VERSION }}"
+        $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
         $compareVersion = "5.17.0"
 
         if ([version]$scrapedVersion -ge [version]$compareVersion) {
