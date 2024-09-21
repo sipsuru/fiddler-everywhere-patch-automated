@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  scrape-fe-version-and-set-env:
+  scrape_fe_version:
     runs-on: windows-latest
 
     strategy:
@@ -18,7 +18,7 @@ jobs:
         node-version: [22.9.0]
 
     outputs:
-      scraped-version: ${{ steps.set-scraped-version.outputs.scraped-version }}
+      scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
       
     steps:
     - uses: actions/checkout@v4
@@ -45,17 +45,17 @@ jobs:
       working-directory: utils/fe-version-scraper
 
     - name: Read & Set Env
-      id: set-scraped-version
+      id: set_scraped_version
       run: |
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
-        echo "scraped-version=5.17.0" >> $GITHUB_OUTPUT
+        echo "scraped_version=$fileContent" >> $GITHUB_OUTPUT
 
   compare-versions:
     runs-on: windows-latest
-    needs: scrape-fe-version-and-set-env
+    needs: scrape_fe_version
 
     env:
-      SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
+      SCRAPED_VERSION_HIGH: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     outputs:
       should_continue: ${{ steps.should_continue.outputs.should_continue }}
@@ -63,12 +63,14 @@ jobs:
     steps:
 
     - name: Print
-      run: echo "${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}"
+      run: echo "${{ needs.scrape_fe_version.outputs.scraped_version }}"
 
     - name: Check Should Continue
+      env:
+        SCRAPED_VERSION: ${{ env.SCRAPED_VERSION_HIGH }}
       id: should_continue
       run: |
-        $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+        $scrapedVersion = $SCRAPED_VERSION
         $currentVersion = ${{ env.CURRENT_VERSION }}
    
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
@@ -83,169 +85,169 @@ jobs:
         
       shell: pwsh
    
-  download-yukihana-patch:
-    runs-on: windows-latest
-    needs: 
-      - compare-versions
-      - scrape-fe-version-and-set-env
+  # download-yukihana-patch:
+  #   runs-on: windows-latest
+  #   needs: 
+  #     - compare-versions
+  #     - scrape-fe-version-and-set-env
 
-    env: 
-      SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
+  #   env: 
+  #     SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
       
-    if: ${{ needs.compare-versions.outputs.should_continue }} == 'true'
+  #   if: ${{ needs.compare-versions.outputs.should_continue }} == 'true'
 
-    outputs:
-      is-compatible-cont: ${{ steps.is-compatible-cont.outputs.is-compatible-cont }}
-      yukihana-fiddler-name: ${{ steps.yukihana-fiddler-name.outputs.yukihana-fiddler-name }}
+  #   outputs:
+  #     is-compatible-cont: ${{ steps.is-compatible-cont.outputs.is-compatible-cont }}
+  #     yukihana-fiddler-name: ${{ steps.yukihana-fiddler-name.outputs.yukihana-fiddler-name }}
 
-    steps:
-      - name: Compare SCRAPED_VERSION with 5.17.0
-        id: scraped_version_check
-        run: |
-          $scrapedVersion = ${{ env.SCRAPED_VERSION }}
-          $compareVersion = "5.16.0"
+  #   steps:
+  #     - name: Compare SCRAPED_VERSION with 5.17.0
+  #       id: scraped_version_check
+  #       run: |
+  #         $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+  #         $compareVersion = "5.16.0"
    
-          if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
-              if ([version]$scrapedVersion -ge [version]$compareVersion) {
-                  echo "IS_COMPATIBLE_CONT=true" >> $GITHUB_ENV
-              } else {
-                  echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
-              }
-          } else {
-              echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
-          }
+  #         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
+  #             if ([version]$scrapedVersion -ge [version]$compareVersion) {
+  #                 echo "IS_COMPATIBLE_CONT=true" >> $GITHUB_ENV
+  #             } else {
+  #                 echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
+  #             }
+  #         } else {
+  #             echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
+  #         }
         
-        shell: pwsh
+  #       shell: pwsh
 
-      - name: Set IS_COMPATIBLE_CONT as Output
-        id: is-compatible-cont
-        run: echo "is-compatible-cont=${{ env.IS_COMPATIBLE_CONT }}" >> $GITHUB_OUTPUT
+  #     - name: Set IS_COMPATIBLE_CONT as Output
+  #       id: is-compatible-cont
+  #       run: echo "is-compatible-cont=${{ env.IS_COMPATIBLE_CONT }}" >> $GITHUB_OUTPUT
         
-      - name: Set Yukihana fiddler name (>= 5.17.0)
-        if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
+  #     - name: Set Yukihana fiddler name (>= 5.17.0)
+  #       if: env.IS_COMPATIBLE_CONT == 'true'
+  #       run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
 
-      - name: Set Yukihana fiddler name (< 5.17.0)
-        if: env.IS_COMPATIBLE_CONT == 'false'
-        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
+  #     - name: Set Yukihana fiddler name (< 5.17.0)
+  #       if: env.IS_COMPATIBLE_CONT == 'false'
+  #       run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
 
-      - name: Set YUKIHANA_FIDDLER_NAME as Output
-        id: yukihana-fiddler-name
-        run: echo "yukihana-fiddler-name=${{ env.YUKIHANA_FIDDLER_NAME }}" >> $GITHUB_OUTPUT
+  #     - name: Set YUKIHANA_FIDDLER_NAME as Output
+  #       id: yukihana-fiddler-name
+  #       run: echo "yukihana-fiddler-name=${{ env.YUKIHANA_FIDDLER_NAME }}" >> $GITHUB_OUTPUT
 
-      - name: Create yukihana directory
-        run: |
-          if (-Not (Test-Path "yukihana")) {
-            New-Item -ItemType Directory -Path "yukihana"
-          }
-        shell: pwsh
+  #     - name: Create yukihana directory
+  #       run: |
+  #         if (-Not (Test-Path "yukihana")) {
+  #           New-Item -ItemType Directory -Path "yukihana"
+  #         }
+  #       shell: pwsh
 
-      - name: Set Yukihana Release (>= 5.17.0)
-        if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
+  #     - name: Set Yukihana Release (>= 5.17.0)
+  #       if: env.IS_COMPATIBLE_CONT == 'true'
+  #       run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
 
-      - name: Set Yukihana Release (< 5.17.0) 
-        if: env.IS_COMPATIBLE_CONT == 'false'
-        run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
+  #     - name: Set Yukihana Release (< 5.17.0) 
+  #       if: env.IS_COMPATIBLE_CONT == 'false'
+  #       run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
 
-      - name: Print Environment Variables
-        run: |
-          Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
-          Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
-          Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
-          Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
-          Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
-        shell: pwsh
+  #     - name: Print Environment Variables
+  #       run: |
+  #         Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
+  #         Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
+  #         Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
+  #         Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
+  #         Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
+  #       shell: pwsh
         
-      - name: Download Yukihana Patch
-        run: |
-          echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
-          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-${{ env.YUKIHANA_FIDDLER_NAME }}-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/${{ env.YUKIHANA_FIDDLER_NAME }}.dll
-          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-hostpolicy-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/hostpolicy.dll
-        shell: pwsh
+  #     - name: Download Yukihana Patch
+  #       run: |
+  #         echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
+  #         Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-${{ env.YUKIHANA_FIDDLER_NAME }}-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/${{ env.YUKIHANA_FIDDLER_NAME }}.dll
+  #         Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-hostpolicy-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/hostpolicy.dll
+  #       shell: pwsh
       
-      - name: Upload yukihana folder as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: yukihana-patch
-          path: yukihana/
+  #     - name: Upload yukihana folder as an artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: yukihana-patch
+  #         path: yukihana/
 
-  download-madjos-server:
-    runs-on: windows-latest
-    needs: 
-      - compare-versions
-      - download-yukihana-patch
+  # download-madjos-server:
+  #   runs-on: windows-latest
+  #   needs: 
+  #     - compare-versions
+  #     - download-yukihana-patch
 
-    steps:
-      - name: Set up Git
-        run: |
-          git init
-          git remote add origin https://github.com/msojocs/fiddler-everywhere-enhance.git
-          git config core.sparseCheckout true
+  #   steps:
+  #     - name: Set up Git
+  #       run: |
+  #         git init
+  #         git remote add origin https://github.com/msojocs/fiddler-everywhere-enhance.git
+  #         git config core.sparseCheckout true
 
-      - name: Configure sparse-checkout to download the server directory
-        run: |
-          echo "server" >> .git/info/sparse-checkout
-          git pull origin master
+  #     - name: Configure sparse-checkout to download the server directory
+  #       run: |
+  #         echo "server" >> .git/info/sparse-checkout
+  #         git pull origin master
 
-      - name: Move the downloaded directory to the target folder
-        run: |
-          mkdir -p madjos
-          move server madjos/
+  #     - name: Move the downloaded directory to the target folder
+  #       run: |
+  #         mkdir -p madjos
+  #         move server madjos/
 
-      - name: List files in the madjos/server directory
-        run: |
-          dir madjos/server
+  #     - name: List files in the madjos/server directory
+  #       run: |
+  #         dir madjos/server
 
-      - name: Upload madjos folder as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: madjos-patch
-          path: madjos/
+  #     - name: Upload madjos folder as an artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: madjos-patch
+  #         path: madjos/
 
-  download-fiddler-everywhere:
-    runs-on: windows-latest
+  # download-fiddler-everywhere:
+  #   runs-on: windows-latest
 
-    needs:
-      - compare-versions
-      - download-yukihana-patch
-      - download-madjos-server
+  #   needs:
+  #     - compare-versions
+  #     - download-yukihana-patch
+  #     - download-madjos-server
 
-    steps:
-      - name: Download Fiddler Everywhere Using WinGet
-        run: winget download --id=Telerik.Fiddler.Everywhere -d="${{ github.workspace }}"
+  #   steps:
+  #     - name: Download Fiddler Everywhere Using WinGet
+  #       run: winget download --id=Telerik.Fiddler.Everywhere -d="${{ github.workspace }}"
 
-      - name: Extract exe 
-        run: 7z x *.exe -o fe_extracted
+  #     - name: Extract exe 
+  #       run: 7z x *.exe -o fe_extracted
 
-      - name: Upload Fiddler Everywhere Extracted folder as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: fe-artifact
-          path: fe_extracted/
+  #     - name: Upload Fiddler Everywhere Extracted folder as an artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: fe-artifact
+  #         path: fe_extracted/
 
-  patch_fe:
-    runs-on: windows-latest
+  # patch_fe:
+  #   runs-on: windows-latest
 
-    needs:
-      - compare-versions
-      - download-yukihana-patch
-      - download-madjos-server
-      - download-fiddler-everywhere
+  #   needs:
+  #     - compare-versions
+  #     - download-yukihana-patch
+  #     - download-madjos-server
+  #     - download-fiddler-everywhere
 
-    steps:
-      - name: Download All Artifacts (Patch Utils)
-        uses: actions/download-artifact@v4
-        with:
-          name: '*'
+  #   steps:
+  #     - name: Download All Artifacts (Patch Utils)
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: '*'
 
-      - name: Extract All Artifacts using 7-Zip
-        run: |
-          mkdir extracted
-          for %%f in (*.zip) do (
-            7z x "%%f" -o "extracted"
-          )
+  #     - name: Extract All Artifacts using 7-Zip
+  #       run: |
+  #         mkdir extracted
+  #         for %%f in (*.zip) do (
+  #           7z x "%%f" -o "extracted"
+  #         )
 
-      - name: List Extracted Files
-        run: |
-          Get-ChildItem -Path .\extracted\ -Recurse
+  #     - name: List Extracted Files
+  #       run: |
+  #         Get-ChildItem -Path .\extracted\ -Recurse
