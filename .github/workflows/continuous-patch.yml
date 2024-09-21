@@ -90,7 +90,7 @@ jobs:
       - name: Set Yukihana fiddler name
         id: set_fiddler_name
         run: |
-          if (${{ steps.scraped_version_check.outputs.is_compatible }} == 'true') {
+          if (${{ steps.scraped_version_check.outputs.is_compatible }} -eq 'true') {
               echo "fiddler.dll" >> $GITHUB_OUTPUT
           } else {
               echo "libfiddler.dll" >> $GITHUB_OUTPUT
@@ -100,7 +100,7 @@ jobs:
       - name: Set Yukihana Release
         id: set_release
         run: |
-          if (${{ steps.scraped_version_check.outputs.is_compatible }} == 'true') {
+          if (${{ steps.scraped_version_check.outputs.is_compatible }} -eq 'true') {
               echo "continuous" >> $GITHUB_OUTPUT
           } else {
               echo "v1.0.9" >> $GITHUB_OUTPUT
