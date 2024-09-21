@@ -12,29 +12,27 @@ on:
 jobs:
   scrape_fe_version:
     runs-on: windows-latest
-
-    strategy:
-      matrix:
-        node-version: [22.9.0]
-
     outputs:
       scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
-      
+
+    env:
+      NODE_JS_VERSION: 22.9.0
+
     steps:
       - uses: actions/checkout@v4
       
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ env.NODE_JS_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_JS_VERSION }}
 
       - name: Cache Node.js dependencies
         uses: actions/cache@v4
         with:
           path: utils/fe-version-scraper/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
+            ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-
 
       - name: Install Node.js dependencies
         run: npm ci
