@@ -120,6 +120,11 @@ jobs:
       - name: Set Yukihana Release (< 5.17.0) 
         if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
+
+      - name: Print Environment Variables
+        run: |
+          Write-Host "Environment Variables:"
+          Get-ChildItem "env:"
     
       - name: Download Yukihana Patch
         run: |
