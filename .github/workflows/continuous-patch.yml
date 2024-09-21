@@ -53,7 +53,7 @@ jobs:
       - name: Set if Continue?
         run: echo "SHOULD_CONTINUE=${{ steps.version_compare.outputs.result }}" >> $GITHUB_ENV
 
-  download-patch-utils:
+  download-yukihana-patch:
     runs-on: windows-latest
 
     needs: compare-versions
@@ -81,6 +81,7 @@ jobs:
           if (-Not (Test-Path "yukihana")) {
             New-Item -ItemType Directory -Path "yukihana"
           }
+        shell: pwsh
 
       - name: Set Yukihana Release (if CURRENT_VERSION >= 5.17.0)
         if: steps.scraped_version_check.outputs.result == 'true'
@@ -95,39 +96,97 @@ jobs:
           echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
           Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-${{ env.YUKIHANA_FIDDLER_NAME }}-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/${{ env.YUKIHANA_FIDDLER_NAME }}.dll
           Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-hostpolicy-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/hostpolicy.dll
+        shell: pwsh
+      
+      - name: Upload yukihana folder as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yukihana-patch
+          path: yukihana/
 
-      - name: Download server
-        
-  # unpack-unrar:
-  
-  #   runs-on: windows-latest
+  download-madjos-server:
+    runs-on: windows-latest
+    needs: 
+      - compare-versions
+      - download-yukihana-patch
 
-  #   steps:
-  #     - name: Download UnRar
-  #       run: |
-  #         $url = "https://www.rarlab.com/rar/unrarw64.exe"
-  #         Invoke-WebRequest -Uri $url -OutFile unrarw64.exe
-  #       shell: pwsh
+    steps:
+      - name: Set up Git
+        run: |
+          git init
+          git remote add origin https://github.com/msojocs/fiddler-everywhere-enhance.git
+          git config core.sparseCheckout true
 
-  #     - name: Extract unrar.exe
-  #       run: |
-  #         & ".\unrarw64.exe" /s
-  #       shell: pwsh
+      - name: Configure sparse-checkout to download the server directory
+        run: |
+          echo "server" >> .git/info/sparse-checkout
+          git pull origin master
 
-  #     - name: Clean up unrarw64.exe
-  #       run: Remove-Item .\unrarw64.exe
-  #       shell: pwsh
+      - name: Move the downloaded directory to the target folder
+        run: |
+          mkdir -p madjos
+          move server madjos/
 
-  #     - name: Verify UnRar Installation
-  #       run: |
-  #         & ".\unrar.exe" -v
-  #       shell: pwsh
-        
-  #     - name: Upload UnRar as Artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: unrar-extracted
-  #         path: .\unrar.exe
+      - name: List files in the madjos/server directory
+        run: |
+          dir madjos/server
 
-  
-        
+      - name: Upload madjos folder as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: madjos-patch
+          path: madjos/
+
+  download-fiddler-everywhere:
+    runs-on: windows-latest
+
+    needs:
+      - compare-versions
+      - download-yukihana-patch
+      - download-madjos-server
+
+    steps:
+      - name: Download Fiddler Everywhere Using WinGet
+        run: winget download --id=Telerik.Fiddler.Everywhere -d="${{ github.workspace }}"
+
+      - name: Exteact exe 
+        run: 7z x *.exe -o fe_extracted
+
+      - name: Upload Fiddler Everywhere Extracted folder as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-artifact
+          path: fe_extracted/
+
+  patch_fe:
+    runs-on: windows-latest
+
+    needs:
+      - compare-versions
+      - download-yukihana-patch
+      - download-madjos-server
+      - download-fiddler-everywhere
+
+    steps:
+      # Download all artifacts
+      - name: Download All Artifacts (Patch Utils)
+        uses: actions/download-artifact@v4
+        with:
+          name: '*'
+
+      # Extract the downloaded artifacts
+      - name: Extract All Artifacts using 7-Zip
+        run: |
+          mkdir extracted
+          for %%f in (*.zip) do (
+            7z x "%%f" -o "extracted"
+          )
+
+      # List files in the extracted folder using PowerShell
+      - name: List Extracted Files
+        run: |
+          Get-ChildItem -Path .\extracted\ -Recurse
+
+
+      # - name: Delete and replace fiddler.dll
+        # run: 
