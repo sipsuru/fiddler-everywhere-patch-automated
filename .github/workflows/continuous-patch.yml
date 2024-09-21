@@ -51,7 +51,7 @@ jobs:
 
     steps:
     - name: Should Continoue?
-      id: should_continue
+      # id: should_continue
       run: |
         $scrapedVersion = "5.17.0"
         $compareVersion = "5.16.0"
