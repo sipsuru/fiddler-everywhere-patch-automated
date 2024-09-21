@@ -9,11 +9,7 @@ on:
 jobs:
   scrape_fe_version:
     runs-on: windows-latest
-
-    strategy:
-      matrix:
-        node-version: [22.9.0]
-
+    
     outputs:
       ee: ${{ steps.wd.outputs.sdc }}
       
@@ -26,15 +22,9 @@ jobs:
     runs-on: windows-latest
     needs: scrape_fe_version
 
-    env:
-      SCRAPED_VERSION_HIGH: ${{ needs.scrape_fe_version.outputs.ee }}
-
     steps:
-
     - name: Print
       env:
-        TEST: ${{ env.SCRAPED_VERSION_HIGH }}
+        TEST: ${{ needs.scrape_fe_version.outputs.ee }}
       run: 
-        echo "${{ needs.scrape_fe_version.outputs.ee }}"
-        echo "${{ env.SCRAPED_VERSION_HIGH }}"
         echo "$TEST"
