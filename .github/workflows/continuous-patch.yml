@@ -23,7 +23,14 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+
+    - name: Cache Node.js dependencies
+      uses: actions/cache@v4
+      with:
+        path: utils/fe-version-scraper/node_modules
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
 
     - name: Install Node.js dependencies
       run: npm ci
@@ -32,6 +39,7 @@ jobs:
     - name: Run the Node.js script
       run: node .
       working-directory: utils/fe-version-scraper
+
 
     - name: Read & Set Env
       run: |
