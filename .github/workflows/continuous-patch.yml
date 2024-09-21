@@ -277,7 +277,7 @@ jobs:
         run: |
           mkdir extracted
           Get-ChildItem -Path *.zip | ForEach-Object {
-            7z x $_.FullName -o "extracted"
+            7z x $_.FullName -oextracted
           }
 
       - name: List Extracted Files
