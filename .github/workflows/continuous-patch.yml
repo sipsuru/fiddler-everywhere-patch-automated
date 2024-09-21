@@ -28,6 +28,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: utils/fe-version-scraper/node_modules
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
 
     - name: Install Node.js dependencies
       run: npm ci
