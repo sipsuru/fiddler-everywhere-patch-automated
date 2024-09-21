@@ -151,9 +151,24 @@ jobs:
         
       - name: Download Yukihana Patch
         run: |
-          echo "Downloading files from $env:YUKIHANA_RELEASE"
-          Invoke-WebRequest -Uri "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-$env:YUKIHANA_FIDDLER_NAME-win32-x86_64-$env:YUKIHANA_RELEASE.dll" -OutFile "yukihana\$env:YUKIHANA_FIDDLER_NAME.dll"
-          Invoke-WebRequest -Uri "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-hostpolicy-win32-x86_64-$env:YUKIHANA_RELEASE.dll" -OutFile "yukihana\hostpolicy.dll"
+          try {
+            # Build the download URLs
+            $yukihanaFiddlerUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-$env:YUKIHANA_FIDDLER_NAME-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
+            $yukihanaHostPolicyUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-hostpolicy-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
+            
+            # Print the URLs to ensure they're correct
+            Write-Host "Downloading files from $env:YUKIHANA_RELEASE"
+            Write-Host "Yukihana Fiddler URL: $yukihanaFiddlerUrl"
+            Write-Host "Yukihana HostPolicy URL: $yukihanaHostPolicyUrl"
+
+            # Download the files
+            Invoke-WebRequest -Uri $yukihanaFiddlerUrl -OutFile "yukihana\$env:YUKIHANA_FIDDLER_NAME.dll"
+            Invoke-WebRequest -Uri $yukihanaHostPolicyUrl -OutFile "yukihana\hostpolicy.dll"
+          }
+          catch {
+            Write-Error "Failed to download the patch files. Error details: $_"
+            exit 1
+          }
         shell: pwsh
       
       - name: Upload yukihana folder as an artifact
