@@ -2,7 +2,6 @@ name: Continuous Patch
 
 env:
   CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
-  SCRAPED_VERSION: ""
   IS_COMPATIBLE_CONT: "true"
   YUKIHANA_FIDDLER_NAME: "fiddler.dll"
 
@@ -114,11 +113,11 @@ jobs:
           }
         shell: pwsh
 
-      - name: Set Yukihana Release (if CURRENT_VERSION >= 5.17.0)
+      - name: Set Yukihana Release (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
         run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
 
-      - name: Set Yukihana Release (if CURRENT_VERSION < 5.17.0) 
+      - name: Set Yukihana Release (< 5.17.0) 
         if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
     
