@@ -32,4 +32,4 @@ jobs:
 
     steps:
       - name: Print
-        run: echo ${{ env.THE_ENV }}
+        run: echo "${{ env.THE_ENV }}"
