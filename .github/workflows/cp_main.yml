@@ -262,30 +262,28 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: yukihana-patch
+          path: yukihana-patch
 
       - name: Download MadJos-Server
         uses: actions/download-artifact@v4
         with:
           name: madjos-patch
+          path: madjos-patch
 
       - name: Download FE
         uses: actions/download-artifact@v4
         with:
           name: fe-artifact
+          path: fe-artifact
 
       - name: Extract all artifacts into patches folder
         run: |
           mkdir patches
-          Expand-Archive -Path "yukihana-patch.zip" -DestinationPath "patches/yukihana"
-          Expand-Archive -Path "madjos-patch.zip" -DestinationPath "patches/madjos"
-          Expand-Archive -Path "fe_artifact.zip" -DestinationPath "patches/fe_extracted"
+          Expand-Archive -Path "yukihana-patch/yukihana.zip" -DestinationPath "patches/yukihana"
+          Expand-Archive -Path "madjos-patch/madjos.zip" -DestinationPath "patches/madjos"
+          Expand-Archive -Path "fe-artifact/fe_extracted.zip" -DestinationPath "patches/fe_extracted"
+          Remove-Item "yukihana-patch/yukihana-patch.zip"
+          Remove-Item "madjos-patch/madjos.zip"
+          Remove-Item "fe-artifact/fe_extracted.zip"
+          Get-ChildItem -Recurse patches
         shell: pwsh
-
-      - name: Clean (Zip artifacts)
-        run: |
-          Remove-Item "yukihana-patch.zip"
-          Remove-Item "madjos-patch.zip"
-          Remove-Item "fe_artifact.zip"
-
-      - name: List Extracted Files
-        run: Get-ChildItem -Path .\patches\ -Recurse
