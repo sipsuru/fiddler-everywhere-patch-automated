@@ -137,15 +137,6 @@ jobs:
       - name: Set Yukihana Release (< 5.17.0) 
         if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" | Out-File -Append -FilePath $env:GITHUB_ENV
-
-      # - name: Print Environment Variables
-      #   run: |
-      #     Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
-      #     Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
-      #     Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
-      #     Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
-      #     Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
-      #   shell: pwsh
         
       - name: Download Yukihana Patch
         run: |
@@ -258,6 +249,9 @@ jobs:
       - download-madjos-server
       - download-fiddler-everywhere
       - scrape_fe_version
+
+    outputs:
+      patched-fe-name: ${{ steps.rename-fe.outputs.patched-fe-name }}
 
     env:
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
@@ -435,13 +429,14 @@ jobs:
           Write-Host "JSON file created successfully at $patch_json"
 
       - name: Rename FE 
+        id: rename-fe
         run: |
           if (Test-Path FE) {
             $newName = "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
             
             Rename-Item -Path "FE" -NewName $newName
             
-            echo "NEW_FOLDER=$newName" >> $env:GITHUB_ENV            
+            echo "patched-fe-name=$newName" >> $env:GITHUB_OUTPUT            
           } else {
             Write-Host "FE Folder not found!?"
           }
@@ -449,6 +444,53 @@ jobs:
       - name: Upload Artifact for Patched FE
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ env.NEW_FOLDER }}"
-          path: "${{ env.NEW_FOLDER }}/"
+          name: "${{ steps.rename-fe.outputs.patched-fe-name }}"
+          path: "${{ steps.rename-fe.outputs.patched-fe-name }}/"
           if-no-files-found: error
+
+  release:
+    runs-on: windows-latest
+
+    needs: 
+      - patch_fe
+      - scrape_fe_version
+      
+    env:
+      PATCHED_FE_NAME: ${{ needs.patch_fe.steps.rename-fe.outputs.patched-fe-name }}
+      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
+
+    steps:
+
+      - name: Download FE Cracked
+        uses: actions/download-artifact@v4
+        with:
+          name: "${{ env.PATCHED_FE_NAME }}"
+          path: "${{ env.PATCHED_FE_NAME }}/"
+
+      # Don't know if needed (If can just upload folder)
+      - name: Pack FE
+        run: |
+          7z a "$env:PATCHED_FE_NAME.7z" "$env:PATCHED_FE_NAME/*"
+          Remove-Item -Path "$env:PATCHED_FE_NAME" -Recurse
+          
+      - name: Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.SCRAPED_VERSION }}
+          files: "$env:PATCHED_FE_NAME.7z"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
+
+      - name: Output Release URL
+        run: echo |
+          echo "Release created at:` ${{ steps.create_release.outputs.url }}"
+
+      - name: Update Last Patched Version
+        run: |
+          gh repo edit ${{ github.repository }} --update-var LATEST_PATCHED_VERSION=${{ env.SCRAPED_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
