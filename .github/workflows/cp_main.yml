@@ -445,8 +445,8 @@ jobs:
       - name: Upload Artifact for Patched FE
         uses: actions/upload-artifact@v4
         with:
-          name: "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
-          path: "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched/"
+          name: "Fiddler-Everywhere-V${{ env.SCRAPED_VERSION-Patched }}"
+          path: "Fiddler-Everywhere-V${{env.SCRAPED_VERSION-Patched }}/"
           if-no-files-found: error
           
       # - name: Update Actions Repository Variable to released version
