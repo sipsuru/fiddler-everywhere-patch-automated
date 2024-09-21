@@ -258,13 +258,20 @@ jobs:
       - scrape_fe_version
 
     steps:
-      - name: Download All Artifacts (Patch Utils)
+      - name: Download Yukuhana-Patch
         uses: actions/download-artifact@v4
         with:
-          name: |
-            yukihana-patch
-            madjos-patch
-            fe-artifact
+          name: yukihana-patch
+
+      - name: Download MadJos-Server
+        uses: actions/download-artifact@v4
+        with:
+          name: madjos-patch
+
+      - name: Download FE
+        uses: actions/download-artifact@v4
+        with:
+          name: fe-artifact
 
       - name: Extract All Artifacts
         run: |
