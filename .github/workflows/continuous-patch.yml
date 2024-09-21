@@ -219,35 +219,21 @@ jobs:
       - scrape_fe_version
 
     steps:
-      - name: Build and Print Download URL
+      - name: Build URL & Download
         run: |
           # Retrieve the scraped version from the previous step
           $scrapedVersion = "${{ needs.scrape_fe_version.outputs.scraped_version }}"
           
           # Check if the scraped version is available
           if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
-            # Construct the download URL using the scraped version
             $downloadUrl = "https://downloads.getfiddler.com/win/Fiddler%20Everywhere%20$scrapedVersion.exe"
-            
-            # Print the constructed URL for verification
+          
             Write-Host "Download URL: $downloadUrl"
+
+            Invoke-WebRequest -Uri $env:DOWNLOAD_URL -OutFile "FiddlerEverywhereSetup.exe"
             
-            # Save the URL as an environment variable to be used by the next steps
-            echo "DOWNLOAD_URL=$downloadUrl" >> $GITHUB_ENV
           } else {
             Write-Host "SCRAPED_VERSION is empty or not set"
-            exit 1
-          }
-        shell: pwsh
-
-      - name: Verify and Download Fiddler Everywhere
-        run: |
-          # Ensure the DOWNLOAD_URL variable is available
-          if (-not [string]::IsNullOrEmpty($env:DOWNLOAD_URL)) {
-            # Download the file
-            Invoke-WebRequest -Uri $env:DOWNLOAD_URL -OutFile "FiddlerEverywhereSetup.exe"
-          } else {
-            Write-Host "DOWNLOAD_URL is not set or is empty."
             exit 1
           }
         shell: pwsh
