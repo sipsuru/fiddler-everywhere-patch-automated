@@ -44,7 +44,7 @@ jobs:
   ran-holy-tnx:
     runs-on: windows-latest
     needs: compare-versions
-    if: ${{ needs.compare-versions.outputs.should_continue == true }}
+    if: ${{ needs.compare-versions.outputs.should_continue }} == 'true'
 
     steps:
     
