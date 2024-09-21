@@ -63,22 +63,24 @@ jobs:
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
             if ([version]$scrapedVersion -ge [version]$compareVersion) {
                 echo "should_continue=true" >> $GITHUB_OUTPUT
-                Write-Host "OUTPUT: true"
+                # Write-Host "OUTPUT: true"
             } else {
                 echo "should_continue=false" >> $GITHUB_OUTPUT
-                Write-Host "OUTPUT: false"
+                # Write-Host "OUTPUT: false"
             }
         } else {
             echo "should_continue=false" >> $GITHUB_OUTPUT
-            Write-Host "OUTPUT: false"
+            # Write-Host "OUTPUT: false"
         }
 
+        Write-Host "OUTPUT: $(Get-Content $GITHUB_OUTPUT | Select-String 'should_continue')"
+        
       shell: pwsh
    
   download-yukihana-patch:
     runs-on: windows-latest
     needs: compare-versions
-    if: ${{ needs.compare-versions.outputs.should_continue == 'true' }}
+    if: ${{ needs.compare-versions.outputs.should_continue == true }}
 
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
