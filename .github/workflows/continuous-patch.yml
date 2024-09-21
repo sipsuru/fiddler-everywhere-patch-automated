@@ -9,45 +9,45 @@ on:
   workflow_dispatch:
 
 jobs:
-  scrape-fe-version-and-set-env:
-    runs-on: windows-latest
+  # scrape-fe-version-and-set-env:
+  #   runs-on: windows-latest
 
-    strategy:
-      matrix:
-        node-version: [22.9.0]
+  #   strategy:
+  #     matrix:
+  #       node-version: [22.9.0]
 
-    steps:
-    - uses: actions/checkout@v4
+  #   steps:
+  #   - uses: actions/checkout@v4
     
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+  #   - name: Use Node.js ${{ matrix.node-version }}
+  #     uses: actions/setup-node@v4
+  #     with:
+  #       node-version: ${{ matrix.node-version }}
 
-    - name: Cache Node.js dependencies
-      uses: actions/cache@v4
-      with:
-        path: utils/fe-version-scraper/node_modules
-        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
+  #   - name: Cache Node.js dependencies
+  #     uses: actions/cache@v4
+  #     with:
+  #       path: utils/fe-version-scraper/node_modules
+  #       key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-node-${{ matrix.node-version }}-
 
-    - name: Install Node.js dependencies
-      run: npm ci
-      working-directory: utils/fe-version-scraper
+  #   - name: Install Node.js dependencies
+  #     run: npm ci
+  #     working-directory: utils/fe-version-scraper
 
-    - name: Run the Node.js script
-      run: node .
-      working-directory: utils/fe-version-scraper
+  #   - name: Run the Node.js script
+  #     run: node .
+  #     working-directory: utils/fe-version-scraper
 
-    - name: Read & Set Env
-      run: |
-        $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
-        echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
+  #   - name: Read & Set Env
+  #     run: |
+  #       $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
+  #       echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
 
   compare-versions:
     runs-on: windows-latest
-    needs: scrape-fe-version-and-set-env
+    # needs: scrape-fe-version-and-set-env
 
     steps:
     - name: Compare Versions
@@ -66,7 +66,8 @@ jobs:
                 echo "scraped_version_check=false" >> $GITHUB_ENV
             }
         } else {
-            echo "scraped_version_check=false" >> $GITHUB_ENV  # Handle empty case
+            echo "scraped_version_check=false" >> $GITHUB_ENV
+        }
       shell: pwsh
         
     - name: Set if Continue?
