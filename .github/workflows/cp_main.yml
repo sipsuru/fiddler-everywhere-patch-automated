@@ -448,7 +448,7 @@ jobs:
           path: "${{ steps.rename-fe.outputs.patched-fe-name }}/"
           if-no-files-found: error
 
-  release:
+  release-fe:
     runs-on: windows-latest
 
     needs: 
@@ -456,7 +456,7 @@ jobs:
       - scrape_fe_version
       
     env:
-      PATCHED_FE_NAME: ${{ needs.patch_fe.steps.rename-fe.outputs.patched-fe-name }}
+      PATCHED_FE_NAME: ${{ needs.patch_fe.rename-fe.outputs.patched-fe-name }}
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     steps:
