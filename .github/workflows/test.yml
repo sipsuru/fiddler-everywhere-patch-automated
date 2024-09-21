@@ -1,0 +1,35 @@
+name: Learn 
+
+env:
+  CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
+  
+on:
+  push:
+      branches:
+        - main  
+  workflow_dispatch:
+
+jobs:
+  first_job:
+
+    runs-on: windows-latest
+
+    outputs:
+      output1: ${{ steps.get-fiddler-version.outputs.get-fiddler-version }}
+    
+    steps:
+      - name: Get Fiddler Version
+        id: get-fiddler-version
+        run: echo "get-fiddler-version=134" >> $GITHUB_OUTPUT
+
+  second-job:
+    runs-on: windows-latest
+
+    needs: first_job
+
+    env:
+      THE_ENV: ${{ needs.first_job.outputs.output1 }}
+
+    steps:
+      - name: Print
+        run: echo ${{ env.THE_ENV }}
