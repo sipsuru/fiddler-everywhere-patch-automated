@@ -50,24 +50,29 @@ jobs:
     # needs: scrape-fe-version-and-set-env
 
     steps:
-    - name: Should Continoue?
-      # id: should_continue
+    
+    - name: Check Should Continue
+      id: should_continue
       run: |
         $scrapedVersion = "5.17.0"
         $compareVersion = "5.16.0"
-       
+   
         Write-Host "SCRAPED_VERSION: $scrapedVersion"
         Write-Host "Compare Version: $compareVersion"
 
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
             if ([version]$scrapedVersion -ge [version]$compareVersion) {
                 echo "should_continue=true" >> $GITHUB_OUTPUT
+                Write-Host "OUTPUT: true"
             } else {
                 echo "should_continue=false" >> $GITHUB_OUTPUT
+                Write-Host "OUTPUT: false"
             }
         } else {
             echo "should_continue=false" >> $GITHUB_OUTPUT
+            Write-Host "OUTPUT: false"
         }
+
       shell: pwsh
    
   download-yukihana-patch:
