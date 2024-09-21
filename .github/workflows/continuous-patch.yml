@@ -18,7 +18,7 @@ jobs:
         node-version: [22.9.0]
 
     outputs:
-      should_continue: ${{ steps.set-scraped-version.outputs.scraped-version }}
+      scraped-version: ${{ steps.set-scraped-version.outputs.scraped-version }}
       
     steps:
     - uses: actions/checkout@v4
