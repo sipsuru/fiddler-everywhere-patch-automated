@@ -6,6 +6,9 @@ env:
   YUKIHANA_FIDDLER_NAME: "fiddler.dll"
 
 on:
+  push:
+      branches:
+        - main  
   workflow_dispatch:
 
 jobs:
@@ -73,7 +76,7 @@ jobs:
             # Write-Host "OUTPUT: false"
         }
 
-        Write-Host "OUTPUT: $(Get-Content $GITHUB_OUTPUT | Select-String 'should_continue')"
+        # Write-Host "OUTPUT: $(Get-Content $GITHUB_OUTPUT | Select-String 'should_continue')"
         
       shell: pwsh
    
