@@ -140,14 +140,14 @@ jobs:
         if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" | Out-File -Append -FilePath $env:GITHUB_ENV
 
-      - name: Print Environment Variables
-        run: |
-          Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
-          Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
-          Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
-          Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
-          Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
-        shell: pwsh
+      # - name: Print Environment Variables
+      #   run: |
+      #     Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
+      #     Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
+      #     Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
+      #     Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
+      #     Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
+      #   shell: pwsh
         
       - name: Download Yukihana Patch
         run: |
@@ -176,6 +176,7 @@ jobs:
         with:
           name: yukihana-patch
           path: yukihana/
+          if-no-files-found: error
 
   download-madjos-server:
     runs-on: windows-latest
@@ -208,6 +209,7 @@ jobs:
         with:
           name: madjos-patch
           path: madjos/
+          if-no-files-found: error
 
   download-fiddler-everywhere:
     runs-on: windows-latest
@@ -250,6 +252,7 @@ jobs:
         with:
           name: fe_app64
           path: fe_app64/
+          if-no-files-found: error
 
   patch_fe:
     runs-on: windows-latest
@@ -260,6 +263,9 @@ jobs:
       - download-madjos-server
       - download-fiddler-everywhere
       - scrape_fe_version
+
+    env:
+      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     steps:
       - name: Download Yukuhana-Patch
@@ -286,6 +292,173 @@ jobs:
           Get-ChildItem -Recurse madjos-patch
           Get-ChildItem -Recurse fe_app64
         shell: pwsh
+
+      - name: Rename main FE folder
+        run: Rename-Item -Path "fe_app64" -NewName "FE"
+
+      - name: Patch fiddler.dll / libfiddler.dll
+        run: |
+          $original_fiddler = "FE/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
+          $yukihana_fiddler = "yukihana-patch/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
+          
+          if (Test-Path $original_fiddler -and Test-Path $yukihana_fiddler) {
+            Copy-Item -Path $yukihana_fiddler -Destination $original_fiddler -Force
+            Write-Host "Replaced $original_fiddler with $yukihana_fiddler"
+          } else {
+            Write-Host "fiddler / libfiddler or yukihana patch not found"
+          }
+        shell: pwsh
+
+      - name: Patch hostpolicy.dll
+        run: |
+          $original_hostpolicy = "FE/resources/app/out/WebServer/hostpolicy.dll"
+          $original_copy_hostpolicy = "FE/resources/app/out/WebServer/hostpolicy.original.dll"
+          $yukihana_hostpolicy = "yukihana-patch/hostpolicy.dll"
+
+          if (Test-Path $original_hostpolicy -and Test-Path $yukihana_hostpolicy) {
+            Rename-Item -Path $original_hostpolicy -Destination $original_copy_hostpolicy
+            Copy-Item -Path $yukihana_hostpolicy -Destination $original_hostpolicy
+            Write-Host "Renamed $original_fiddler with $original_copy_hostpolicy & Applied Yukihana Patch"
+          } else {
+            Write-Host "original hostpolicy.dll or yukihana hotstpolicy not found"
+          }
+
+      - name: Clean yukihana-patch
+        run: |
+          if (Test-Path yukihana-patch) {
+            Remove-Item -Path "yukihana-patch" -Recurse
+          } else {
+            Write-Host "yukihana-patch Folder not found"
+          }
+
+      - name: Copy Server Folder
+        run: |
+          $source_server_folder = "madjos-patch/server/file"
+          $destination_server_folder = "FE/resources/app/out"
+          
+          if (Test-Path $source_server_folder) {
+            Copy-Item -Path $source_server_folder -Destination $destination_server_folder -Recurse
+          } else {
+            Write-Host "Source Server Folder not found"
+          }
+        shell: pwsh
+
+      - name: Patch main.js to main.original.js
+        run: |
+          $source_main = "FE/resources/app/out/main.js"
+          $main_content = Get-Content -Path $source_main -Raw
+
+          $new_main = "FE/resources/app/out/main.original.js"
+
+          $source_index = "madjos-patch/server/index.js"
+          $index_content = Get-Content -Path $source_index -Raw
+          
+          if (Test-Path $source_server_folder -and Test-Path $source_index) {
+            Copy-Item -Path $source_main -Destination $new_main
+
+            $appended_content = $index_content + $main_content
+
+            Set-Content -Path $source_main -Value $appended_content
+          } else {
+            Write-Host "Source main.js or index.js (from server) not found"
+          }
+
+      - name: Patch main.XXX.js to main.XXX.original.js
+        run: |
+          $directory = 'FE/resources/app/out/WebServer/ClientApp/dist'
+          
+          $source_main = Get-ChildItem -Path $directory -Filter 'main*.*.js' | Where-Object { $_.Name -match '^main[.-][\w\d]+\.js$' }"
+          
+          if ($source_main) {
+            # Extract original file name without extension
+            $originalName = [System.IO.Path]::GetFileNameWithoutExtension($source_main.Name)
+            
+            # Define the new file name in the format "original-name.original.js"
+            $new_main_name = "$originalName.original.js"
+            
+            # Rename the file
+            Copy-Item -Path $directory/$source_main.FullName -Destination $directory/$new_main_name
+
+            Write-Host "File renamed from $($source_main.Name) to $new_main_name"
+
+            Write-Host "Finding and Replacing now"
+
+            $source_content = Get-Content -Path $directory/$source_main -Raw
+
+            $searchText1 = "https://api.getfiddler.com"
+            $replaceText1 = "http://127.0.0.1:5678/api.getfiddler.com"
+            $updatedText1 = $directory/$source_main -replace [regex]::Escape($searchText1), $replaceText1
+
+            $searchText2 = "https://identity.getfiddler.com"
+            $replaceText2 = "http://127.0.0.1:5678/identity.getfiddler.com"
+            $finalUpdatedText = $updatedText1 -replace [regex]::Escape($searchText2), $replaceText2
+
+            # Overwrite the file with the new content
+            Set-Content -Path $directory/$source_main -Value $finalUpdatedText
+
+            echo "MAIN_XXX_NAME=$originalName" >> $env:GITHUB_ENV            
+          } else {
+            Write-Host "No matching file found for main-xxx.js"
+          }
+
+      - name: Clean madjos-patch
+        run: |
+          if (Test-Path madjos-patch) {
+            Remove-Item -Path "madjos-patch" -Recurse
+          } else {
+            Write-Host "madjos-patch Folder not found"
+          }
+        
+      - name: Add patch.json
+        run: |
+          $patch_json = "FE/resources/app/out/WebServer/patch.json"
+          
+          $jsonContent = @{
+            "ClientApp\\dist\\$env:MAIN_XXX_NAME.js" = @{
+              "target" = "ClientApp\\dist\\ $env:MAIN_XXX_NAME.original.js"
+              "content" = ""
+              "cur" = 0
+              "start" = 0
+              "end" = 1
+            }
+            "..\\main.js" = @{
+              "target" = "..\\main.original.js"
+              "content" = ""
+              "cur" = 0
+              "start" = 0
+              "end" = 1
+            }
+          }
+
+          # Convert the PowerShell object to JSON format
+          $jsonString = $jsonContent | ConvertTo-Json -Depth 10
+
+          # Write the JSON string to the file
+          $jsonString | Set-Content -Path $patch_json -Encoding UTF8
+          
+          # Output message
+          Write-Host "JSON file created successfully at $patch_json"
+
+      - name: Rename FE 
+        run: |
+          if (Test-Path FE) {
+            Rename-Item -Path "FE" -NewName "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
+          } else {
+            Write-Host "FE Folder not found!?"
+          }
+
+      - name: Upload Artifact for Patched FE
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched"
+          path: "Fiddler-Everywhere-V$env:SCRAPED_VERSION-Patched/"
+          if-no-files-found: error
+          
+      # - name: Update Actions Repository Variable to released version
+      #   run: |
+      #     gh repo edit ${{ github.repository }} --update-var LATEST_PATCHED_VERSION=$env:SCRAPED_VERSION
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       # - name: Extract all artifacts into patches folder
       #   run: |
