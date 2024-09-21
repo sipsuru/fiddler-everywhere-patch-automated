@@ -60,27 +60,13 @@ jobs:
     needs: scrape_fe_version
 
     env:
-      SCRAPED_VERSION_HIGH: ${{ needs.scrape_fe_version.outputs.ee }}
-
-    # outputs:
-      # should_continue: ${{ steps.should_continue.outputs.should_continue }}
+      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.ee }}
 
     steps:
-
-    - name: Print
-      env:
-        TEST: ${{ env.SCRAPED_VERSION_HIGH }}
-      run: 
-        echo "${{ needs.scrape_fe_version.outputs.ee }}"
-        echo "%SCRAPED_VERSION_HIGH%"
-        echo "%TEST%"
-
     - name: Check Should Continue
-      env:
-        SCRAPED_VERSION: ${{ env.SCRAPED_VERSION_HIGH }}
       id: should_continue
       run: |
-        $scrapedVersion = $SCRAPED_VERSION
+        $scrapedVersion = ${{ env.SCRAPED_VERSION }}
         $currentVersion = ${{ env.CURRENT_VERSION }}
    
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
