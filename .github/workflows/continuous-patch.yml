@@ -218,11 +218,25 @@ jobs:
       - download-madjos-server
 
     steps:
-      - name: Download Fiddler Everywhere Using WinGet
-        run: winget download --id=Telerik.Fiddler.Everywhere -d="${{ github.workspace }}"
+      - name: Build and Print Download URL
+        run: |
+          $scrapedVersion = "${{ needs.scrape_fe_version.outputs.scraped_version }}"
+          $downloadUrl = "https://downloads.getfiddler.com/win/Fiddler%20Everywhere%20$scrapedVersion.exe"
+          
+          # Print the constructed URL for verification
+          Write-Host "Download URL: $downloadUrl"
+          
+          # Save the URL as an environment variable for use in the next step
+          echo "DOWNLOAD_URL=$downloadUrl" >> $GITHUB_ENV
+        shell: pwsh
+
+      - name: Download Fiddler Everywhere Using Constructed URL
+        run: |
+          Invoke-WebRequest -Uri $env:DOWNLOAD_URL -OutFile "FiddlerEverywhereSetup.exe"
+        shell: pwsh
 
       - name: Extract exe 
-        run: 7z x *.exe -o fe_extracted
+        run: 7z x FiddlerEverywhereSetup.exe -o fe_extracted
 
       - name: Upload Fiddler Everywhere Extracted folder as an artifact
         uses: actions/upload-artifact@v4
