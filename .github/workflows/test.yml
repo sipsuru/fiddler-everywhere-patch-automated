@@ -5,13 +5,12 @@ env:
   
 on:
   push:
-      branches:
-        - main  
+    branches:
+      - main  
   workflow_dispatch:
 
 jobs:
   first_job:
-
     runs-on: windows-latest
 
     outputs:
@@ -22,9 +21,8 @@ jobs:
         id: get-fiddler-version
         run: echo "get-fiddler-version=134" >> $GITHUB_OUTPUT
 
-  second-job:
+  second_job:
     runs-on: windows-latest
-
     needs: first_job
 
     env:
@@ -32,4 +30,4 @@ jobs:
 
     steps:
       - name: Print
-        run: echo "${{ env.THE_ENV }}"
+        run: echo "The value of THE_ENV is: $THE_ENV"
