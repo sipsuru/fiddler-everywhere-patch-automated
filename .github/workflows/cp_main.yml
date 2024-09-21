@@ -436,7 +436,7 @@ jobs:
             
             Rename-Item -Path "FE" -NewName $newName
             
-            echo "patched-fe-name=$newName" >> $env:GITHUB_OUTPUT            
+            echo "patched-fe-name=$newName" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
           } else {
             Write-Host "FE Folder not found!?"
           }
@@ -461,6 +461,9 @@ jobs:
 
     steps:
 
+      - name: Test Name
+        run: Write-Host $env:PATCHED_FE_NAME
+
       - name: Download FE Cracked
         uses: actions/download-artifact@v4
         with:
@@ -470,8 +473,8 @@ jobs:
       # Don't know if needed (If can just upload folder)
       - name: Pack FE
         run: |
-          7z a "$env:PATCHED_FE_NAME.7z" "$env:PATCHED_FE_NAME/*"
-          Remove-Item -Path "$env:PATCHED_FE_NAME" -Recurse
+          Compress-Archive -Path "$env:PATCED_FE_NAME/*" -DestinationPath "$env:PATCED_FE_NAME.zip"
+          Remove-Item -Path $env:PATCHED_FE_NAME -Recurse
           
       - name: Release
         id: create_release
