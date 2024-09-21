@@ -8,7 +8,7 @@ on:
 
 jobs:
   scrape_fe_version:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     outputs:
       ee: ${{ steps.wd.outputs.sdc }}
