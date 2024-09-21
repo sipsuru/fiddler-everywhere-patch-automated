@@ -13,13 +13,25 @@ jobs:
   scrape-fe-version-and-set-env:
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        node-version: [22.9.0]
+
     steps:
     - uses: actions/checkout@v4
     
-    - name: Use Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: '22.9.0'
+        node-version: ${{ matrix.node-version }}
+
+    - name: Cache Node.js dependencies
+      uses: actions/cache@v4
+      with:
+        path: utils/fe-version-scraper/node_modules
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
 
     - name: Install Node.js dependencies
       run: npm ci
@@ -29,7 +41,7 @@ jobs:
       run: node .
       working-directory: utils/fe-version-scraper
 
-    - name: Read & Set SCRAPED_VERSION
+    - name: Read & Set Env
       run: |
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
         echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
@@ -38,16 +50,14 @@ jobs:
     runs-on: windows-latest
     needs: scrape-fe-version-and-set-env
 
-    outputs:
-      should_continue: ${{ steps.should_continue.outputs.should_continue }}
-
     steps:
+    
     - name: Check Should Continue
       id: should_continue
       run: |
-        $scrapedVersion = ${{ env.SCRAPED_VERSION }}
-        $currentVersion = ${{ env.CURRENT_VERSION }}
-
+        $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
+        $currentVersion = "${{ env.CURRENT_VERSION }}"
+   
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
             if ([version]$scrapedVersion -ge [version]$currentVersion) {
                 echo "should_continue=true" >> $GITHUB_OUTPUT
@@ -63,16 +73,13 @@ jobs:
   download-yukihana-patch:
     runs-on: windows-latest
     needs: compare-versions
-    outputs:
-      YUKIHANA_FIDDLER_NAME: ${{ steps.set_fiddler_name.outputs.fiddler_name }}
-      IS_COMPATIBLE_CONT: ${{ steps.set_compatibility.outputs.is_compatible }}
-      YUKIHANA_RELEASE: ${{ steps.set_release.outputs.release }}
+    if: ${{ needs.compare-versions.outputs.should_continue == 'true' }}
 
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
         run: |
-          $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+          $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
           $compareVersion = "5.17.0"
 
           if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
@@ -86,33 +93,54 @@ jobs:
           }
         
         shell: pwsh
-
+        
       - name: Set Yukihana fiddler name
         id: set_fiddler_name
         run: |
-          if (${{ steps.scraped_version_check.outputs.is_compatible }} -eq 'true') {
-              echo "fiddler.dll" >> $GITHUB_OUTPUT
+          if (${{ steps.scraped_version_check.outputs.IS_COMPATIBLE_CONT }} -eq 'true') {
+              echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
           } else {
-              echo "libfiddler.dll" >> $GITHUB_OUTPUT
+              echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
+          }
+        shell: pwsh
+
+      - name: Create yukihana directory
+        run: |
+          if (-Not (Test-Path "yukihana")) {
+            New-Item -ItemType Directory -Path "yukihana"
           }
         shell: pwsh
 
       - name: Set Yukihana Release
-        id: set_release
         run: |
-          if (${{ steps.scraped_version_check.outputs.is_compatible }} -eq 'true') {
-              echo "continuous" >> $GITHUB_OUTPUT
+          if (${{ steps.scraped_version_check.outputs.IS_COMPATIBLE_CONT }} -eq 'true') {
+              echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
           } else {
-              echo "v1.0.9" >> $GITHUB_OUTPUT
+              echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
           }
         shell: pwsh
 
       - name: Print Environment Variables
         run: |
-          Write-Host "YUKIHANA_FIDDLER_NAME: ${{ steps.set_fiddler_name.outputs.fiddler_name }}"
-          Write-Host "IS_COMPATIBLE_CONT: ${{ steps.scraped_version_check.outputs.is_compatible }}"
-          Write-Host "YUKIHANA_RELEASE: ${{ steps.set_release.outputs.release }}"
+          Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
+          Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
+          Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
+          Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
+          Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
         shell: pwsh
+        
+      - name: Download Yukihana Patch
+        run: |
+          echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
+          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-${{ env.YUKIHANA_FIDDLER_NAME }}-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/${{ env.YUKIHANA_FIDDLER_NAME }}.dll
+          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-hostpolicy-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/hostpolicy.dll
+        shell: pwsh
+      
+      - name: Upload yukihana folder as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yukihana-patch
+          path: yukihana/
 
   download-madjos-server:
     runs-on: windows-latest
@@ -121,15 +149,35 @@ jobs:
       - download-yukihana-patch
 
     steps:
-      - name: Use Outputs
+      - name: Set up Git
         run: |
-          echo "YUKIHANA_FIDDLER_NAME: ${{ needs.download-yukihana-patch.outputs.YUKIHANA_FIDDLER_NAME }}"
-          echo "IS_COMPATIBLE_CONT: ${{ needs.download-yukihana-patch.outputs.IS_COMPATIBLE_CONT }}"
-          echo "YUKIHANA_RELEASE: ${{ needs.download-yukihana-patch.outputs.YUKIHANA_RELEASE }}"
-        shell: pwsh
+          git init
+          git remote add origin https://github.com/msojocs/fiddler-everywhere-enhance.git
+          git config core.sparseCheckout true
+
+      - name: Configure sparse-checkout to download the server directory
+        run: |
+          echo "server" >> .git/info/sparse-checkout
+          git pull origin master
+
+      - name: Move the downloaded directory to the target folder
+        run: |
+          mkdir -p madjos
+          move server madjos/
+
+      - name: List files in the madjos/server directory
+        run: |
+          dir madjos/server
+
+      - name: Upload madjos folder as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: madjos-patch
+          path: madjos/
 
   download-fiddler-everywhere:
     runs-on: windows-latest
+
     needs:
       - compare-versions
       - download-yukihana-patch
@@ -150,6 +198,7 @@ jobs:
 
   patch_fe:
     runs-on: windows-latest
+
     needs:
       - compare-versions
       - download-yukihana-patch
