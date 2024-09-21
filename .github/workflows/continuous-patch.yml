@@ -2,11 +2,11 @@ name: Continuous Patch
 
 env:
   CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
-
+  
 on:
   push:
-    branches:
-      - main  
+      branches:
+        - main  
   workflow_dispatch:
 
 jobs:
@@ -17,6 +17,9 @@ jobs:
       matrix:
         node-version: [22.9.0]
 
+    outputs:
+      should_continue: ${{ steps.set-scraped-version.outputs.scraped-version }}
+      
     steps:
     - uses: actions/checkout@v4
     
@@ -42,21 +45,34 @@ jobs:
       working-directory: utils/fe-version-scraper
 
     - name: Read & Set Env
+      id: set-scraped-version
       run: |
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
-        echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
+        echo "scraped-version=$fileContent" >> $GITHUB_OUTPUT
 
   compare-versions:
     runs-on: windows-latest
     needs: scrape-fe-version-and-set-env
 
+    env:
+      SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
+
+    outputs:
+      should_continue: ${{ steps.should_continue.outputs.should_continue }}
+
     steps:
+
+    - name: Print Environment Variables
+      run: |
+        Write-Host "CURRENT_VERSION: $env.CURRENT_VERSION"
+        Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
+      shell: pwsh
     
     - name: Check Should Continue
       id: should_continue
       run: |
-        $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
-        $currentVersion = "${{ env.CURRENT_VERSION }}"
+        $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+        $currentVersion = ${{ env.CURRENT_VERSION }}
    
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
             if ([version]$scrapedVersion -ge [version]$currentVersion) {
@@ -72,37 +88,53 @@ jobs:
    
   download-yukihana-patch:
     runs-on: windows-latest
-    needs: compare-versions
-    if: ${{ needs.compare-versions.outputs.should_continue == 'true' }}
+    needs: 
+      - compare-versions
+      - scrape-fe-version-and-set-env
+
+    env: 
+      SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
+      
+    if: ${{ needs.compare-versions.outputs.should_continue }} == 'true'
+
+    outputs:
+      is-compatible-cont: ${{ steps.is-compatible-cont.outputs.is-compatible-cont }}
+      yukihana-fiddler-name: ${{ steps.yukihana-fiddler-name.outputs.yukihana-fiddler-name }}
 
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
         run: |
-          $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
-          $compareVersion = "5.17.0"
-
+          $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+          $compareVersion = "5.16.0"
+   
           if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
               if ([version]$scrapedVersion -ge [version]$compareVersion) {
-                  echo "IS_COMPATIBLE_CONT=true" >> $GITHUB_OUTPUT
+                  echo "IS_COMPATIBLE_CONT=true" >> $GITHUB_ENV
               } else {
-                  echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_OUTPUT
+                  echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
               }
           } else {
-              echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_OUTPUT
+              echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
           }
         
         shell: pwsh
+
+      - name: Set IS_COMPATIBLE_CONT as Output
+        id: is-compatible-cont
+        run: echo "is-compatible-cont=${{ env.IS_COMPATIBLE_CONT }}" >> $GITHUB_OUTPUT
         
-      - name: Set Yukihana fiddler name
-        id: set_fiddler_name
-        run: |
-          if (${{ steps.scraped_version_check.outputs.IS_COMPATIBLE_CONT }} -eq 'true') {
-              echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
-          } else {
-              echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
-          }
-        shell: pwsh
+      - name: Set Yukihana fiddler name (>= 5.17.0)
+        if: env.IS_COMPATIBLE_CONT == 'true'
+        run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
+
+      - name: Set Yukihana fiddler name (< 5.17.0)
+        if: env.IS_COMPATIBLE_CONT == 'false'
+        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
+
+      - name: Set YUKIHANA_FIDDLER_NAME as Output
+        id: yukihana-fiddler-name
+        run: echo "yukihana-fiddler-name=${{ env.YUKIHANA_FIDDLER_NAME }}" >> $GITHUB_OUTPUT
 
       - name: Create yukihana directory
         run: |
@@ -111,14 +143,13 @@ jobs:
           }
         shell: pwsh
 
-      - name: Set Yukihana Release
-        run: |
-          if (${{ steps.scraped_version_check.outputs.IS_COMPATIBLE_CONT }} -eq 'true') {
-              echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
-          } else {
-              echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
-          }
-        shell: pwsh
+      - name: Set Yukihana Release (>= 5.17.0)
+        if: env.IS_COMPATIBLE_CONT == 'true'
+        run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
+
+      - name: Set Yukihana Release (< 5.17.0) 
+        if: env.IS_COMPATIBLE_CONT == 'false'
+        run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
 
       - name: Print Environment Variables
         run: |
