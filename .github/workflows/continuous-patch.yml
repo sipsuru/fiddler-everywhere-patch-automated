@@ -62,12 +62,9 @@ jobs:
 
     steps:
 
-    - name: Print Environment Variables
-      run: |
-        Write-Host "CURRENT_VERSION: $env.CURRENT_VERSION"
-        Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
-      shell: pwsh
-    
+    - name: Print
+      run: echo "${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}"
+
     - name: Check Should Continue
       id: should_continue
       run: |
