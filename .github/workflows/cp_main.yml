@@ -273,12 +273,19 @@ jobs:
         with:
           name: fe-artifact
 
-      - name: Extract All Artifacts
+      - name: Extract all artifacts into patches folder
         run: |
-          mkdir extracted
-          Get-ChildItem -Path *.zip | ForEach-Object {
-            7z x $_.FullName -oextracted
-          }
+          mkdir patches
+          Expand-Archive -Path "yukihana-patch.zip" -DestinationPath "patches/yukihana"
+          Expand-Archive -Path "madjos-patch.zip" -DestinationPath "patches/madjos"
+          Expand-Archive -Path "fe_artifact.zip" -DestinationPath "patches/fe_extracted"
+        shell: pwsh
+
+      - name: Clean (Zip artifacts)
+        run: |
+          Remove-Item "yukihana-patch.zip"
+          Remove-Item "madjos-patch.zip"
+          Remove-Item "fe_artifact.zip"
 
       - name: List Extracted Files
-        run: Get-ChildItem -Path .\extracted\ -Recurse
+        run: Get-ChildItem -Path .\patches\ -Recurse
