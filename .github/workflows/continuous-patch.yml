@@ -73,7 +73,7 @@ jobs:
           } else {
               echo "should_continue=false" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
           }
-      shell: pwsh
+        shell: pwsh
    
   download-yukihana-patch:
     runs-on: windows-latest
