@@ -10,7 +10,10 @@ async function getLatestVersion() {
     const $ = cheerio.load(data);
 
     // Adjust the selector to match the layout of the page
-    const version = $('a:contains("Fiddler Everywhere v")').first().text().match(/v\d+\.\d+\.\d+/)[0];
+    const version = $('a:contains("Fiddler Everywhere v")')
+      .first()
+      .text()
+      .match(/(\d+\.\d+\.\d+)/)[0]; // Update regex to capture version without 'v'
 
     console.log(`Latest Version: ${version}`);
 
