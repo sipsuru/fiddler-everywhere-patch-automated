@@ -48,7 +48,7 @@ jobs:
       id: set-scraped-version
       run: |
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
-        echo "scraped-version=$fileContent" >> $GITHUB_OUTPUT
+        echo "scraped-version=5.17.0" >> $GITHUB_OUTPUT
 
   compare-versions:
     runs-on: windows-latest
