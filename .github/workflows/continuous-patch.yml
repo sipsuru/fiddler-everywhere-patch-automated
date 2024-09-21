@@ -3,6 +3,8 @@ name: Continuous Patch
 env:
   CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
   SCRAPED_VERSION: ""
+  SHOULD_CONTINUE: false
+  YUKIHANA_FIDDLER_NAME: "fiddler.dll"
 
 on:
   # Continous (sheduled) run here
@@ -34,12 +36,67 @@ jobs:
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
         echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
 
+  compare-versions:
+    runs-on: windows-latest
+
+    needs: scrape-fe-version-and-set-env
+
+    steps:
+      - name: Compare Versions
+        id: version_compare
+        uses: frankfarrell/semver-tool@v3.4.0
+        with:
+          version: ${{ env.CURRENT_VERSION }}
+          operator: gt
+          compare_with: ${{ env.SCRAPED_VERSION }}
+      
+      - name: Set if Continue?
+        run: echo "SHOULD_CONTINUE=${{ steps.version_compare.outputs.result }}" >> $GITHUB_ENV
+
   download-patch-utils:
-    runs-on: windows-lates
+    runs-on: windows-latest
+
+    needs: compare-versions
+    if: ${{ env.SHOULD_CONTINUE == 'true' }}
    
     steps:
+      - name: Compare SCRAPED_VERSION with 5.17.0
+        id: scraped_version_check
+        uses: frankfarrell/semver-tool@v3.4.0
+        with:
+          version: ${{ env.SCRAPED_VERSION }}
+          operator: gte
+          compare_with: '5.17.0'
+
+      - name: Set Yukihana fiddler name. (>= 5.17.0)
+        if: steps.scraped_version_check.outputs.result == 'true'
+        run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
+
+      - name: Set Yukihana fiddler name. (< 5.17.0)
+        if: steps.scraped_version_check.outputs.result == 'false'
+        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
+
+      - name: Create yukihana directory
+        run: |
+          if (-Not (Test-Path "yukihana")) {
+            New-Item -ItemType Directory -Path "yukihana"
+          }
+
+      - name: Set Yukihana Release (if CURRENT_VERSION >= 5.17.0)
+        if: steps.scraped_version_check.outputs.result == 'true'
+        run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
+
+      - name: Set Yukihana Release (if CURRENT_VERSION < 5.17.0) 
+        if: steps.scraped_version_check.outputs.result == 'false'
+        run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
+    
       - name: Download Yukihana Patch
-        run: 
+        run: |
+          echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
+          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-${{ env.YUKIHANA_FIDDLER_NAME }}-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/${{ env.YUKIHANA_FIDDLER_NAME }}.dll
+          Invoke-WebRequest -Uri https://github.com/project-yukihana/Yukihana-patch/releases/download/${{ env.YUKIHANA_RELEASE }}/yukihana-hostpolicy-win32-x86_64-${{ env.YUKIHANA_RELEASE }}.dll -OutFile yukihana/hostpolicy.dll
+
+      - name: Download server
         
   # unpack-unrar:
   
