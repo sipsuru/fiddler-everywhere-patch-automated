@@ -72,11 +72,13 @@ jobs:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
         run: |
-          if [ "$(printf '%s\n' "${{ env.SCRAPED_VERSION }}" "5.17.0" | sort -V | head -n1)" == "${{ env.SCRAPED_VERSION }}" ]; then
-            echo "scraped_version_check=false" >> $GITHUB_ENV
-          else
+          $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
+          $compareVersion = "5.17.0"
+          if ([version]$scrapedVersion -ge [version]$compareVersion) {
             echo "scraped_version_check=true" >> $GITHUB_ENV
-          fi
+          } else {
+            echo "scraped_version_check=false" >> $GITHUB_ENV
+          }
 
       - name: Set Yukihana fiddler name (>= 5.17.0)
         if: env.scraped_version_check == 'true'
