@@ -19,7 +19,6 @@ jobs:
 
     outputs:
       scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
-      ee: ${{ steps.wd.outputs.sdc }}
       
     steps:
     - uses: actions/checkout@v4
@@ -51,16 +50,12 @@ jobs:
         $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
         echo "scraped_version=$fileContent" >> $GITHUB_OUTPUT
 
-    - name: RE
-      id: wd
-      run: echo "sdc=wdqwd" >> $GITHUB_OUTPUT
-
   compare-versions:
     runs-on: windows-latest
     needs: scrape_fe_version
 
     env:
-      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.ee }}
+      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     steps:
     - name: Check Should Continue
