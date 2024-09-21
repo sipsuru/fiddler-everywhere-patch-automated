@@ -1,0 +1,43 @@
+name: Continuous Patch 
+
+env:
+  CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
+  
+on:
+  push:
+      branches:
+        - main  
+  workflow_dispatch:
+
+jobs:
+  scrape_fe_version:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [22.9.0]
+
+    outputs:
+      ee: ${{ steps.wd.outputs.sdc }}
+      
+    steps:
+    - name: RE
+      id: wd
+      run: echo "sdc=wdqwd" >> $GITHUB_OUTPUT
+
+  compare-versions:
+    runs-on: windows-latest
+    needs: scrape_fe_version
+
+    env:
+      SCRAPED_VERSION_HIGH: ${{ needs.scrape_fe_version.outputs.ee }}
+
+    steps:
+
+    - name: Print
+      env:
+        TEST: ${{ env.SCRAPED_VERSION_HIGH }}
+      run: 
+        echo "${{ needs.scrape_fe_version.outputs.ee }}"
+        echo "${{ env.SCRAPED_VERSION_HIGH }}"
+        echo "$TEST"
