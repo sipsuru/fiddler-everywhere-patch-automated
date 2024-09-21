@@ -216,6 +216,7 @@ jobs:
       - compare-versions
       - download-yukihana-patch
       - download-madjos-server
+      - scrape_fe_version
 
     steps:
       - name: Build and Print Download URL
@@ -252,6 +253,7 @@ jobs:
       - download-yukihana-patch
       - download-madjos-server
       - download-fiddler-everywhere
+      - scrape_fe_version
 
     steps:
       - name: Download All Artifacts (Patch Utils)
