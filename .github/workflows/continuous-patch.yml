@@ -12,41 +12,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  # scrape-fe-version-and-set-env:
-  #   runs-on: windows-latest
+  scrape-fe-version-and-set-env:
+    runs-on: windows-latest
 
-  #   strategy:
-  #     matrix:
-  #       node-version: [22.9.0]
+    strategy:
+      matrix:
+        node-version: [22.9.0]
 
-  #   steps:
-  #   - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
     
-  #   - name: Use Node.js ${{ matrix.node-version }}
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
 
-  #   - name: Cache Node.js dependencies
-  #     uses: actions/cache@v4
-  #     with:
-  #       path: utils/fe-version-scraper/node_modules
-  #       key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
-  #       restore-keys: |
-  #         ${{ runner.os }}-node-${{ matrix.node-version }}-
+    - name: Cache Node.js dependencies
+      uses: actions/cache@v4
+      with:
+        path: utils/fe-version-scraper/node_modules
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
 
-  #   - name: Install Node.js dependencies
-  #     run: npm ci
-  #     working-directory: utils/fe-version-scraper
+    - name: Install Node.js dependencies
+      run: npm ci
+      working-directory: utils/fe-version-scraper
 
-  #   - name: Run the Node.js script
-  #     run: node .
-  #     working-directory: utils/fe-version-scraper
+    - name: Run the Node.js script
+      run: node .
+      working-directory: utils/fe-version-scraper
 
-  #   - name: Read & Set Env
-  #     run: |
-  #       $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
-  #       echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
+    - name: Read & Set Env
+      run: |
+        $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
+        echo "SCRAPED_VERSION=$fileContent" >> $GITHUB_ENV
 
   compare-versions:
     runs-on: windows-latest
@@ -59,14 +59,11 @@ jobs:
     - name: Check Should Continue
       id: should_continue
       run: |
-        $scrapedVersion = "5.17.0"
-        $compareVersion = "5.16.0"
+        $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+        $currentVersion = ${{ env.CURRENT_VERSION }}
    
-        Write-Host "SCRAPED_VERSION: $scrapedVersion"
-        Write-Host "Compare Version: $compareVersion"
-
         if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
-            if ([version]$scrapedVersion -ge [version]$compareVersion) {
+            if ([version]$scrapedVersion -ge [version]$currentVersion) {
                 echo "should_continue=true" >> $GITHUB_OUTPUT
             } else {
                 echo "should_continue=false" >> $GITHUB_OUTPUT
@@ -86,20 +83,27 @@ jobs:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
         run: |
-          $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
-          $compareVersion = "5.17.0"
-          if ([version]$scrapedVersion -ge [version]$compareVersion) {
-            echo "scraped_version_check=true" >> $GITHUB_ENV
+          $scrapedVersion = ${{ env.SCRAPED_VERSION }}
+          $compareVersion = 5.17.0
+   
+          if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
+              if ([version]$scrapedVersion -ge [version]$compareVersion) {
+                  echo "IS_COMPATIBLE_CONT=true" >> $GITHUB_ENV
+              } else {
+                  echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
+              }
           } else {
-            echo "scraped_version_check=false" >> $GITHUB_ENV
+              echo "IS_COMPATIBLE_CONT=false" >> $GITHUB_ENV
           }
-
+        
+        shell: pwsh
+        
       - name: Set Yukihana fiddler name (>= 5.17.0)
-        if: env.scraped_version_check == 'true'
+        if: env.IS_COMPATIBLE_CONT == 'true'
         run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
 
       - name: Set Yukihana fiddler name (< 5.17.0)
-        if: env.scraped_version_check == 'false'
+        if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
 
       - name: Create yukihana directory
@@ -110,11 +114,11 @@ jobs:
         shell: pwsh
 
       - name: Set Yukihana Release (if CURRENT_VERSION >= 5.17.0)
-        if: env.scraped_version_check == 'true'
+        if: env.IS_COMPATIBLE_CONT == 'true'
         run: echo "YUKIHANA_RELEASE=continuous" >> $GITHUB_ENV
 
       - name: Set Yukihana Release (if CURRENT_VERSION < 5.17.0) 
-        if: env.scraped_version_check == 'false'
+        if: env.IS_COMPATIBLE_CONT == 'false'
         run: echo "YUKIHANA_RELEASE=v1.0.9" >> $GITHUB_ENV
     
       - name: Download Yukihana Patch
