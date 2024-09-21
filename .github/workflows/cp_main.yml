@@ -298,7 +298,7 @@ jobs:
           $original_fiddler = "FE/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
           $yukihana_fiddler = "yukihana-patch/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
           
-          if (Test-Path $original_fiddler -and Test-Path $yukihana_fiddler) {
+          if ((Test-Path $original_fiddler) -and (Test-Path $yukihana_fiddler)) {
             Copy-Item -Path $yukihana_fiddler -Destination $original_fiddler -Force
             Write-Host "Replaced $original_fiddler with $yukihana_fiddler"
           } else {
