@@ -123,9 +123,13 @@ jobs:
 
       - name: Print Environment Variables
         run: |
-          Write-Host "Environment Variables:"
-          Get-ChildItem "env:"
-    
+          Write-Host "YUKIHANA_FIDDLER_NAME: $env:YUKIHANA_FIDDLER_NAME"
+          Write-Host "IS_COMPATIBLE_CONT: $env:IS_COMPATIBLE_CONT"
+          Write-Host "CURRENT_VERSION: $env:CURRENT_VERSION"
+          Write-Host "SCRAPED_VERSION: $env:SCRAPED_VERSION"
+          Write-Host "YUKIHANA_RELEASE: $env:YUKIHANA_RELEASE"
+        shell: pwsh
+        
       - name: Download Yukihana Patch
         run: |
           echo "Downloading files from ${{ env.YUKIHANA_RELEASE }}"
