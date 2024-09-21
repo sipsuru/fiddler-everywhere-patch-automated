@@ -11,7 +11,7 @@ on:
 
 jobs:
   scrape_fe_version:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -99,7 +99,7 @@ jobs:
     runs-on: windows-latest
     needs: 
       - compare-versions
-      - scrape-fe-version-and-set-env
+      - scrape_fe_version
 
     env: 
       SCRAPED_VERSION: ${{ needs.scrape-fe-version-and-set-env.outputs.scraped-version }}
