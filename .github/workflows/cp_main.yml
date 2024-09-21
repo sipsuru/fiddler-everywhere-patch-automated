@@ -313,7 +313,7 @@ jobs:
           $yukihana_hostpolicy = "yukihana-patch/hostpolicy.dll"
 
           if ((Test-Path $original_hostpolicy) -and (Test-Path $yukihana_hostpolicy)) {
-            Rename-Item -Path $original_hostpolicy -Destination $original_copy_hostpolicy
+            Rename-Item -Path $original_hostpolicy -NewName $original_copy_hostpolicy # Well this moves as well and not needed
             Copy-Item -Path $yukihana_hostpolicy -Destination $original_hostpolicy
             Write-Host "Renamed $original_fiddler with $original_copy_hostpolicy & Applied Yukihana Patch"
           } else {
