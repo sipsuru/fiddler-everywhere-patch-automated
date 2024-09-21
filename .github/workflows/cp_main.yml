@@ -250,12 +250,12 @@ jobs:
       - download-fiddler-everywhere
       - scrape_fe_version
 
-    outputs:
-      patched-fe-name: ${{ steps.rename-fe.outputs.patched-fe-name }}
-
     env:
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
+    outputs:
+      patched-fe-name: ${{ steps.rename-fe.outputs.patched-fe-name }}
+      
     steps:
       - name: Download Yukuhana-Patch
         uses: actions/download-artifact@v4
