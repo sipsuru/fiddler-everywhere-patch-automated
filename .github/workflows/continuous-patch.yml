@@ -53,14 +53,20 @@ jobs:
     - name: Compare Versions
       id: version_compare
       run: |
-        $scrapedVersion = "${{ env.SCRAPED_VERSION }}"
+        $scrapedVersion = "5.16.0"
         $compareVersion = "5.17.0"
+       
+        Write-Host "SCRAPED_VERSION: $scrapedVersion"
+        Write-Host "Compare Version: $compareVersion"
 
-        if ([version]$scrapedVersion -ge [version]$compareVersion) {
-          echo "scraped_version_check=true" >> $GITHUB_ENV
+        if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
+            if ([version]$scrapedVersion -ge [version]$compareVersion) {
+                echo "scraped_version_check=true" >> $GITHUB_ENV
+            } else {
+                echo "scraped_version_check=false" >> $GITHUB_ENV
+            }
         } else {
-          echo "scraped_version_check=false" >> $GITHUB_ENV
-        }
+            echo "scraped_version_check=false" >> $GITHUB_ENV  # Handle empty case
       shell: pwsh
         
     - name: Set if Continue?
