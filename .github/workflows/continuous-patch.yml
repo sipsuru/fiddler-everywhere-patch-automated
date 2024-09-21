@@ -53,15 +53,19 @@ jobs:
     - name: Compare Versions
       id: version_compare
       run: |
-        if [ "$(printf '%s\n' "${{ env.SCRAPED_VERSION }}" "${{ env.CURRENT_VERSION }}" | sort -V | head -n1)" == "${{ env.SCRAPED_VERSION }}" ]; then
-          echo "result=false" >> $GITHUB_ENV
-        else
-          echo "result=true" >> $GITHUB_ENV
-        fi
+        i$scrapedVersion = "${{ env.SCRAPED_VERSION }}"
+        $compareVersion = "5.17.0"
+
+        if ([version]$scrapedVersion -ge [version]$compareVersion) {
+          echo "scraped_version_check=true" >> $GITHUB_ENV
+        } else {
+          echo "scraped_version_check=false" >> $GITHUB_ENV
+        }
+      shell: pwsh
         
     - name: Set if Continue?
       id: set_continue
-      run: echo "should_continue=${{ env.result }}" >> $GITHUB_OUTPUT
+      run: echo "should_continue=${{ env.scraped_version_check }}" >> $GITHUB_OUTPUT
 
   download-yukihana-patch:
     runs-on: windows-latest
