@@ -239,7 +239,7 @@ jobs:
         shell: pwsh
 
       - name: Extract exe 
-        run: 7z x FiddlerEverywhereSetup.exe -o fe_extracted
+        run: 7z x FiddlerEverywhereSetup.exe -ofe_extracted
 
       - name: Upload Fiddler Everywhere Extracted folder as an artifact
         uses: actions/upload-artifact@v4
@@ -263,7 +263,7 @@ jobs:
         with:
           name: '*'
 
-      - name: Extract All Artifacts using 7-Zip
+      - name: Extract All Artifacts
         run: |
           mkdir extracted
           Get-ChildItem -Path *.zip | ForEach-Object {
