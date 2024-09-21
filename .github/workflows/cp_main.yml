@@ -182,7 +182,6 @@ jobs:
     runs-on: windows-latest
     needs: 
       - compare-versions
-      - download-yukihana-patch
 
     steps:
       - name: Set up Git
@@ -216,8 +215,6 @@ jobs:
 
     needs:
       - compare-versions
-      - download-yukihana-patch
-      - download-madjos-server
       - scrape_fe_version
 
     steps:
