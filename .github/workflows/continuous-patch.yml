@@ -230,7 +230,7 @@ jobs:
           
             Write-Host "Download URL: $downloadUrl"
 
-            Invoke-WebRequest -Uri $env:DOWNLOAD_URL -OutFile "FiddlerEverywhereSetup.exe"
+            Invoke-WebRequest -Uri $downloadUrl -OutFile "FiddlerEverywhereSetup.exe"
             
           } else {
             Write-Host "SCRAPED_VERSION is empty or not set"
