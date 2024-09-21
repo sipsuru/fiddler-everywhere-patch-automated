@@ -3,22 +3,18 @@ name: Continuous Patch
 env:
   CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
   SCRAPED_VERSION: ""
-  SHOULD_CONTINUE: false
   YUKIHANA_FIDDLER_NAME: "fiddler.dll"
 
 on:
-  # Continous (sheduled) run here
   workflow_dispatch:
 
 jobs:
   scrape-fe-version-and-set-env:
-
     runs-on: windows-latest
 
     strategy:
       matrix:
         node-version: [22.9.0]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +24,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        
     - run: npm ci
     - run: node .
 
@@ -38,7 +35,6 @@ jobs:
 
   compare-versions:
     runs-on: windows-latest
-
     needs: scrape-fe-version-and-set-env
 
     steps:
@@ -49,16 +45,16 @@ jobs:
           version: ${{ env.CURRENT_VERSION }}
           operator: gt
           compare_with: ${{ env.SCRAPED_VERSION }}
-      
+
       - name: Set if Continue?
-        run: echo "SHOULD_CONTINUE=${{ steps.version_compare.outputs.result }}" >> $GITHUB_ENV
+        id: set_continue
+        run: echo "should_continue=${{ steps.version_compare.outputs.result }}" >> $GITHUB_OUTPUT
 
   download-yukihana-patch:
     runs-on: windows-latest
-
     needs: compare-versions
-    if: ${{ env.SHOULD_CONTINUE == 'true' }}
-   
+    if: ${{ needs.compare-versions.outputs.should_continue == 'true' }}
+
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
         id: scraped_version_check
@@ -68,11 +64,11 @@ jobs:
           operator: gte
           compare_with: '5.17.0'
 
-      - name: Set Yukihana fiddler name. (>= 5.17.0)
+      - name: Set Yukihana fiddler name (>= 5.17.0)
         if: steps.scraped_version_check.outputs.result == 'true'
         run: echo "YUKIHANA_FIDDLER_NAME=fiddler.dll" >> $GITHUB_ENV
 
-      - name: Set Yukihana fiddler name. (< 5.17.0)
+      - name: Set Yukihana fiddler name (< 5.17.0)
         if: steps.scraped_version_check.outputs.result == 'false'
         run: echo "YUKIHANA_FIDDLER_NAME=libfiddler.dll" >> $GITHUB_ENV
 
@@ -149,7 +145,7 @@ jobs:
       - name: Download Fiddler Everywhere Using WinGet
         run: winget download --id=Telerik.Fiddler.Everywhere -d="${{ github.workspace }}"
 
-      - name: Exteact exe 
+      - name: Extract exe 
         run: 7z x *.exe -o fe_extracted
 
       - name: Upload Fiddler Everywhere Extracted folder as an artifact
@@ -168,13 +164,11 @@ jobs:
       - download-fiddler-everywhere
 
     steps:
-      # Download all artifacts
       - name: Download All Artifacts (Patch Utils)
         uses: actions/download-artifact@v4
         with:
           name: '*'
 
-      # Extract the downloaded artifacts
       - name: Extract All Artifacts using 7-Zip
         run: |
           mkdir extracted
@@ -182,11 +176,6 @@ jobs:
             7z x "%%f" -o "extracted"
           )
 
-      # List files in the extracted folder using PowerShell
       - name: List Extracted Files
         run: |
           Get-ChildItem -Path .\extracted\ -Recurse
-
-
-      # - name: Delete and replace fiddler.dll
-        # run: 
