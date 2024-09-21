@@ -53,7 +53,7 @@ jobs:
 
     - name: RE
       id: wd
-      run: echo "sdc=wdqwd" >> $GITHUB_OUTPUTS
+      run: echo "sdc=wdqwd" >> $GITHUB_OUTPUT
 
   compare-versions:
     runs-on: windows-latest
