@@ -473,8 +473,8 @@ jobs:
       # Don't know if needed (If can just upload folder)
       - name: Pack FE
         run: |
-          Compress-Archive -Path "$env:PATCED_FE_NAME/*" -DestinationPath "$env:PATCED_FE_NAME.zip"
-          Remove-Item -Path $env:PATCHED_FE_NAME -Recurse
+          $filename = $env:PATCED_FE_NAME
+          Compress-Archive -Path "$filename/*" -DestinationPath "$filename.zip"
           
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -505,7 +505,7 @@ jobs:
 
       - name: Output Release URL
         run: echo |
-          echo "Release created at:` ${{ steps.create_release.outputs.url }}"
+          echo "Release created at ${{ steps.create_release.outputs.url }}"
 
       - name: Update Last Patched Version
         run: |
