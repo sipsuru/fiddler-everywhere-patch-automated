@@ -51,14 +51,25 @@ jobs:
         run: |
           $filePath = "utils/fe-version-validator/versions.txt"
           $isValid = 'false'
+          $patchingVersion = $env:VERSION_TO_PATCH
           
-          if (Select-String -Path $filePath -Pattern $env:VERSION_TO_PATCH) {
-            $isValid = 'true'
-            Write-Output "Version found."
+          if (-not [string]::IsNullOrEmpty($patchingVersion)) {
+            if (Select-String -Path $filePath -Pattern $patchingVersion) {
+              $compareVersion = "5.9.0"
+              
+              if ([version]$patchingVersion -ge [version]$compareVersion) {
+                $isValid = 'true'
+                Write-Output "Valid Version found."
+              } else {
+                Write-Output "Version not Compatible."
+              }
+            } else {
+              Write-Output "Version Empty."
+            }
           } else {
-            $isValid = 'false'
-            Write-Output "Version not found!"
+            Write-Output "Version not found in List!"
           }
+          
           echo "is_valid=$isValid" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
  
   download-yukihana-patch:
