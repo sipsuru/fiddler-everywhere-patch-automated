@@ -49,7 +49,7 @@ jobs:
         id: get_validity
         shell: pwsh
         run: |
-          $filePath = "vesions.txt"
+          $filePath = "utils/fe-version-validator/versions.txt"
           $isValid = 'false'
           
           if (Select-String -Path $filePath -Pattern $env:VERSION_TO_PATCH) {
