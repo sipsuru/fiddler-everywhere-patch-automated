@@ -39,10 +39,12 @@ jobs:
 
       - name: Install Node.js dependencies
         run: npm ci
+        shell: cmd
         working-directory: utils/fe-version-validator
 
       - name: Run the Node.js script
         run: node .
+        shell: cmd
         working-directory: utils/fe-version-validator
 
       - name: Get Version Validity
