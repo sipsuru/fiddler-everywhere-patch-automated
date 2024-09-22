@@ -463,10 +463,7 @@ jobs:
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
     steps:
-
-      - name: Test Name
-        run: Write-Host $env:PATCHED_FE_NAME
-
+    
       - name: Download FE Cracked
         uses: actions/download-artifact@v4
         with:
@@ -479,12 +476,24 @@ jobs:
           Compress-Archive -Path "$env:PATCED_FE_NAME/*" -DestinationPath "$env:PATCED_FE_NAME.zip"
           Remove-Item -Path $env:PATCHED_FE_NAME -Recurse
           
-      - name: Create Tag
-        uses: anothrNick/github-tag-action@1.70.0
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          CUSTOM_TAG: ${{ env.SCRAPED_VERSION }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git config with personal username
+        run: |
+          git config user.name "Dragon"
+          git config user.email "dragon@longwang.dev"
+
+      - name: Create and push tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure this token is passed to the Git command
+        run: |
+          git tag ${{ env.SCRAPED_VERSION }}
+          git push origin ${{ env.SCRAPED_VERSION }}
           
+      - name: Verify tag creation
+        run: git tag  # List tags to verify that the tag has been created
+
       - name: Release
         id: create_release
         uses: softprops/action-gh-release@v2
