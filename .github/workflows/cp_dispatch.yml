@@ -45,7 +45,7 @@ jobs:
         run: node .
         working-directory: utils/fe-version-validator
 
-      - name: Read & Set Env
+      - name: Get Version Validity
         id: get_validity
         shell: pwsh
         run: |
