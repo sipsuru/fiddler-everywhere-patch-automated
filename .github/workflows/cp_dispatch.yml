@@ -1,4 +1,4 @@
-name: Continuous Patch
+name: Custom Version - Workflow Dispatch
 
 on:
   workflow_dispatch:
@@ -12,8 +12,61 @@ env:
   VERSION_TO_PATCH: ${{ github.event.inputs.version_to_patch }}
 
 jobs: 
+
+  validate-version:
+    runs-on: windows-latest
+    outputs:
+      is_valid: ${{ steps.get_validity.outputs.is_valid }}
+
+    env:
+      NODE_JS_VERSION: 22.9.0
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Use Node.js ${{ env.NODE_JS_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: utils/fe-version-validator/node_modules
+          key: ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-${{ hashFiles('utils/fe-version-validator/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-
+
+      - name: Install Node.js dependencies
+        run: npm ci
+        working-directory: utils/fe-version-validator
+
+      - name: Run the Node.js script
+        run: node .
+        working-directory: utils/fe-version-validator
+
+      - name: Get Version Validity
+        id: get_validity
+        shell: pwsh
+        run: |
+          $filePath = "utils/fe-version-validator/vesions.txt"
+          $isValid = 'false'
+          
+          if (Select-String -Path $filePath -Pattern $env:VERSION_TO_PATCH) {
+            $isValid = 'true'
+            Write-Output "Version found."
+          } else {
+            $isValid = 'false'
+            Write-Output "Version not found!"
+          }
+          echo "is_valid=$isValid" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
+ 
   download-yukihana-patch:
     runs-on: windows-latest
+
+    needs: validate-version
+
+    if: ${{ needs.validate-version.outputs.is_valid }} == 'true'
     
     outputs:
       is-compatible-cont: ${{ steps.is-compatible-cont.outputs.is-compatible-cont }}
@@ -100,6 +153,10 @@ jobs:
 
   download-madjos-server:
     runs-on: windows-latest
+
+    needs: validate-version
+
+    if: ${{ needs.validate-version.outputs.is_valid }} == 'true'
     
     steps:
       - name: Set up Git
@@ -130,6 +187,10 @@ jobs:
 
   download-fiddler-everywhere:
     runs-on: windows-latest
+
+    needs: validate-version
+
+    if: ${{ needs.validate-version.outputs.is_valid }} == 'true'
 
     steps:
       - name: Build URL & Download
