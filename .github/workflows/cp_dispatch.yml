@@ -196,7 +196,7 @@ jobs:
       - name: Build URL & Download
         run: |
           # Retrieve the patchingVersion version from the previous step
-          $patchingVersion = ${{ env.VERSION_TO_PATCH }}
+          $patchingVersion = $env:VERSION_TO_PATCH
           
           # Check if the patchingVersion version is available
           if (-not [string]::IsNullOrEmpty($patchingVersion)) {
