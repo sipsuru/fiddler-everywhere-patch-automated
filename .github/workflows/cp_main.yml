@@ -499,7 +499,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.SCRAPED_VERSION }}
-          files: "$env:PATCHED_FE_NAME.7z"
+          files: "${{ env.PATCHED_FE_NAME }}.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
 
