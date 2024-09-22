@@ -487,6 +487,7 @@ jobs:
             -d '{"tag_name":"%SCRAPED_VERSION%","target_commitish":"master","name":"%PATCHED_FE_NAME%","body":"New Release Of FE Found and Now Patched","draft":false,"prerelease":false,"generate_release_notes":false}'
         env:
           GITHUB_TOKEN: ${{ secrets.FE_RELEASE_SECRET }}
+        shell: cmd
           
       - name: Release
         id: create_release
