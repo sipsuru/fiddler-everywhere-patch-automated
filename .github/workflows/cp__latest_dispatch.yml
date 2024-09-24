@@ -13,7 +13,10 @@ jobs:
       PYTHON_VERSION: 3.12.6
 
     steps:
+      - name: Checkout repo
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }} 
 
       - name: Setup Python ${{ env.PYTHON_VERSION }}
       - uses: actions/setup-python@v5
