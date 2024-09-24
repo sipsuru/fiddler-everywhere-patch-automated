@@ -1,5 +1,6 @@
 # Fiddler Everywhere Patch (Automated)
-Guides you to Patch Fiddler Everywhere on Windows Manually. Source: https://github.com/msojocs/fiddler-everywhere-enhance
+Guides you to Patch Fiddler Everywhere on Windows Automatically. 
+> Parent Repo: https://github.com/msojocs/fiddler-everywhere-enhance
 
 ## Special: You can also patch manually by yourself. Visit [This repo](https://github.com/sipsuru/fiddler-everywhere-patch-manual)
 
