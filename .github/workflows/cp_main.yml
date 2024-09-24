@@ -21,6 +21,7 @@ jobs:
       PYTHON_VERSION: 3.12.6
 
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v4
       
       - name: Setup Python ${{ env.PYTHON_VERSION }}
@@ -34,7 +35,7 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run Python Script
-      - run: python utils/fe-version-scraper/fe-version-scraper.py --latest
+        run: python utils/fe-version-scraper/fe-version-scraper.py --latest
 
       - name: Read & Set Env
         id: set_scraped_version
