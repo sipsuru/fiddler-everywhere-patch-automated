@@ -10,38 +10,32 @@ jobs:
       scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
 
     env:
-      NODE_JS_VERSION: 22.9.0
+      PYTHON_VERSION: 3.12.6
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Run Python Script
+        run: python utils/fe-version-scraper/fe-version-scraper.py --latest
       
-      - name: Use Node.js ${{ env.NODE_JS_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_JS_VERSION }}
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: utils/fe-version-scraper/node_modules
-          key: ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-${{ hashFiles('utils/fe-version-scraper/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-
-
-      - name: Install Node.js dependencies
-        run: npm ci
-        working-directory: utils/fe-version-scraper
-
-      - name: Run the Node.js script
-        run: node .
-        working-directory: utils/fe-version-scraper
-
       - name: Read & Set Env
         id: set_scraped_version
+        shell: pwsh
         run: |
           $fileContent = Get-Content -Path "utils/fe-version-scraper/latest_version.txt" -Raw
           echo "scraped_version=$fileContent" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
-   
+
   download-yukihana-patch:
     runs-on: windows-latest
     needs: 
