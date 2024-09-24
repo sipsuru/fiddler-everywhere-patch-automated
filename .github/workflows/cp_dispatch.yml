@@ -23,18 +23,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Run Python Script
-      - run: python my_script.py
+      - run: python utils/fe-version-scraper/fe-version-scraper.py --all
       
       - name: Get Version Validity
         id: get_validity
         shell: pwsh
         run: |
-          $filePath = "utils/fe-version-validator/latest_version.txt"
+          $filePath = "utils/fe-version-scraper/versions.txt"
           $isValid = 'false'
           $patchingVersion = $env:VERSION_TO_PATCH
           
