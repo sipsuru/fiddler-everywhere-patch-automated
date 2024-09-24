@@ -21,12 +21,13 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
    - Workflow Dispatch - Allows you to select a compatible version (5.9.0 +) and patch  and upload as a workflow artifact.
    - Workflow Dispatch Latest - Patch the latest version (even it's released in github releases), and upload as artifact.
 
-> Note that Only `Workflow Dispatch` automation mentioned above is available *for now!*
+> ~`Note that Only `Workflow Dispatch` automation mentioned above is available *for now!*~
+
 
 ### With WorkFlow Dispatch
   - Fork this repo
   - Go to actions tab, Select `Custom Version - Workflow Dispatch` workflow.
-  - Trigger it with `workflow diaptch`
+  - Trigger it with `workflow diaptch` providing the version you want to patch
   - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
   - Extract it. Run it
 
@@ -34,10 +35,29 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   
   > You can find a list of releases here - [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history)
 
-  
   * *Here how you do it...*
 
     https://github.com/user-attachments/assets/1e9fa214-b9c9-469c-83f0-e5ae4527d2f7
+
+
+### With Workflow Dispatch Latest
+  - Fork this repo
+  - Go to actions tab, Select `Latest Version - Workflow Dispatch` workflow.
+  - Trigger it with `workflow diaptch`
+  - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
+  - Extract it. Run it
+
+  * *Here how you do it...*
+
+### With Continuous Patch
+  - Fork this repo
+  - Do nothing. 
+  - The action workflows triggers 1t 00:00 UTC everyday, and if it found a new version, the artifact will be uploaded.
+    > Causion: The action won't upload patched app as release for now. So you've to manually check if a new version is patched (everyday) by refering artifact section of the runned actions.
+  - If Telerik has uploaded a new version, if it's patched in a continuous trigger, download the artifact named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
+  - Extract it. Run it
+ 
+  > Important, we highly reccomend you to disable this workflow patch as it consume a lot of resources from github action runners!
 
 Note: For Generic `Linux` and `MacOS` instructions, use [source repository](https://github.com/msojocs/fiddler-everywhere-enhance)
 
