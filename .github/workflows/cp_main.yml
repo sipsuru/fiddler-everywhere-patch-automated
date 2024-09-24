@@ -4,10 +4,12 @@ env:
   CURRENT_VERSION: ${{ vars.LATEST_PATCHED_VERSION }}
 
 on:
-  push:
-    branches:
-      - main  
+  # push:
+    # branches:
+      # - main  
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   scrape_fe_version:
@@ -448,68 +450,68 @@ jobs:
           path: "${{ steps.rename-fe.outputs.patched-fe-name }}/"
           if-no-files-found: error
 
-  release-fe:
-    runs-on: windows-latest
+  # release-fe:
+  #   runs-on: windows-latest
 
-    permissions:
-      contents: write
+  #   permissions:
+  #     contents: write
 
-    needs: 
-      - patch_fe
-      - scrape_fe_version
+  #   needs: 
+  #     - patch_fe
+  #     - scrape_fe_version
       
-    env:
-      PATCHED_FE_NAME: ${{ needs.patch_fe.outputs.patched-fe-name }}
-      SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
+  #   env:
+  #     PATCHED_FE_NAME: ${{ needs.patch_fe.outputs.patched-fe-name }}
+  #     SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
 
-    steps:
+  #   steps:
     
-      - name: Download FE Cracked
-        uses: actions/download-artifact@v4
-        with:
-          name: "${{ env.PATCHED_FE_NAME }}"
-          path: "${{ env.PATCHED_FE_NAME }}/"
+  #     - name: Download FE Cracked
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: "${{ env.PATCHED_FE_NAME }}"
+  #         path: "${{ env.PATCHED_FE_NAME }}/"
 
-      # Don't know if needed (If can just upload folder)
-      - name: Pack FE
-        run: |
-          $filename = $env:PATCED_FE_NAME
-          Compress-Archive -Path "$filename/*" -DestinationPath "$filename.zip"
+  #     # Don't know if needed (If can just upload folder)
+  #     - name: Pack FE
+  #       run: |
+  #         $filename = $env:PATCED_FE_NAME
+  #         Compress-Archive -Path "$filename/*" -DestinationPath "$filename.zip"
           
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Set up Git config with personal username
-        run: |
-          git config user.name "Dragon"
-          git config user.email "dragon@longwang.dev"
+  #     - name: Set up Git config with personal username
+  #       run: |
+  #         git config user.name "Dragon"
+  #         git config user.email "dragon@longwang.dev"
 
-      - name: Create and push tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure this token is passed to the Git command
-        run: |
-          git tag ${{ env.SCRAPED_VERSION }}
-          git push origin ${{ env.SCRAPED_VERSION }}
+  #     - name: Create and push tag
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure this token is passed to the Git command
+  #       run: |
+  #         git tag ${{ env.SCRAPED_VERSION }}
+  #         git push origin ${{ env.SCRAPED_VERSION }}
           
-      - name: Verify tag creation
-        run: git tag  # List tags to verify that the tag has been created
+  #     - name: Verify tag creation
+  #       run: git tag  # List tags to verify that the tag has been created
 
-      - name: Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.SCRAPED_VERSION }}
-          files: "${{ env.PATCHED_FE_NAME }}.zip"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
+  #     - name: Release
+  #       id: create_release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         tag_name: ${{ env.SCRAPED_VERSION }}
+  #         files: "${{ env.PATCHED_FE_NAME }}.zip"
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
 
-      - name: Output Release URL
-        run: echo |
-          echo "Release created at ${{ steps.create_release.outputs.url }}"
+  #     - name: Output Release URL
+  #       run: echo |
+  #         echo "Release created at ${{ steps.create_release.outputs.url }}"
 
-      - name: Update Last Patched Version
-        run: |
-          gh repo edit ${{ github.repository }} --update-var LATEST_PATCHED_VERSION=${{ env.SCRAPED_VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Update Last Patched Version
+  #       run: |
+  #         gh repo edit ${{ github.repository }} --update-var LATEST_PATCHED_VERSION=${{ env.SCRAPED_VERSION }}
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
