@@ -19,37 +19,22 @@ jobs:
       is_valid: ${{ steps.get_validity.outputs.is_valid }}
 
     env:
-      NODE_JS_VERSION: 22.9.0
+      PYTHON_VERSION: 3.12.6
 
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run Python Script
+      - run: python my_script.py
       
-      - name: Use Node.js ${{ env.NODE_JS_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_JS_VERSION }}
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: utils/fe-version-validator/node_modules
-          key: ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-${{ hashFiles('utils/fe-version-validator/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ env.NODE_JS_VERSION }}-
-
-      - name: Install Node.js dependencies
-        run: npm ci
-        working-directory: utils/fe-version-validator
-
-      - name: Run the Node.js script
-        run: node .
-        working-directory: utils/fe-version-validator
-
       - name: Get Version Validity
         id: get_validity
         shell: pwsh
         run: |
-          $filePath = "utils/fe-version-validator/versions.txt"
+          $filePath = "utils/fe-version-validator/latest_version.txt"
           $isValid = 'false'
           $patchingVersion = $env:VERSION_TO_PATCH
           
