@@ -15,6 +15,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
  > [!IMPORTANT]
  > Not patching 5.17.0+ when you trigger from "Custom Version - Workflow Dispatch" is Fixed now!
 
+ > [!NOTE]
  > Only for Windows!
 
  * How even this Automated Patching Works?
@@ -25,6 +26,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
    - Custom Version - Workflow Dispatch - Allows you to select a compatible version (5.9.0 +) and patch  and upload as a workflow artifact.
    - Continuous Patch - Patches FE as it's released by Telerik and make a github release of patched app.
 
+> [!TIP]
 > We highly reccomend you to use ***Latest Version - Workflow Dispatch***, which patch the latest available version. or ***Custon Version - Workflow Dispatch*** which allows you to select a version starting from 5.9.0 +
 
 > ~`Note that Only `Workflow Dispatch` automation mentioned above is not available *for now!*~
@@ -55,6 +57,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
   - Extract it. Run it
 
+  > [!WARNING]
   > Please Note that Only Versions Up to 5.9.0 `( 5.0.9 + )` are supported.
   
   > You can find a list of releases here - [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history)
@@ -65,7 +68,9 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
 
 
 ### With `Continuous Patch`
-  - We highly reccomend you to not to use this version. Please don't use this. It still has a lot of vulnerabilities. 
+  > [!CAUTION]
+  > We highly reccomend you to not to use this version. Please don't use this. It still has a lot of vulnerabilities. 
+  
   - Fork this repo.
   - For Continuous Patch a `Repository Variable` named `LATEST_PATCHED_VERSION` is needed. You should put the current latest version that available in the [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history) but without 'V'. So for ex: `5.17.0`
   - The continuous patch patch newer versions than the version named in `LATEST_PATCHED_VERSION` and ***Currently you need to manually update this repository vairiable after patching a new version with this or else it'll keep patching the same version everyday!***
@@ -73,9 +78,12 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
     > Causion: The action won't upload patched app as release for now. So you've to manually check if a new version is patched (everyday) by refering artifact section of the runned actions.
   - If Telerik has uploaded a new version, if it's patched in a continuous trigger, download the artifact named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
   - Extract it. Run it
- 
-  > Important, we highly reccomend you to disable this workflow patch as it consume a lot of resources from github action runners!
 
-Note: For Generic `Linux` and `MacOS` instructions, use [source repository](https://github.com/msojocs/fiddler-everywhere-enhance)
+  > [!WARNING]
+  > We highly reccomend you to disable this workflow patch as it consume a lot of resources from github action runners! & you won't like a lot's of workflow runs too.
 
-Please don't use this patch for illegal matters. And we'd love if you can buy and support the officials: [Please Support](https://www.telerik.com/purchase/fiddler)
+> [!NOTE]
+> For Generic `Linux` and `MacOS` instructions, use [source repository](https://github.com/msojocs/fiddler-everywhere-enhance)
+
+> [!CAUTION]
+> Please don't use this patch for illegal matters. And we'd love if you can buy and support the officials: [Please Support](https://www.telerik.com/purchase/fiddler)
