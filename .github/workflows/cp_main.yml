@@ -95,7 +95,7 @@ jobs:
         id: scraped_version_check
         run: |
           $scrapedVersion = $env:SCRAPED_VERSION
-          $compareVersion = "5.16.0"
+          $compareVersion = "5.17.0"
    
           if (-not [string]::IsNullOrEmpty($scrapedVersion)) {
               if ([version]$scrapedVersion -ge [version]$compareVersion) {
