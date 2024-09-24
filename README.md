@@ -35,6 +35,8 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
 
   * *Here how you do it...*
 
+    https://github.com/user-attachments/assets/437c3448-1ea2-4c99-9123-e56b1665a37b
+
 
 ### With WorkFlow Dispatch
   - Fork this repo
@@ -50,6 +52,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   * *Here how you do it...*
 
     https://github.com/user-attachments/assets/1e9fa214-b9c9-469c-83f0-e5ae4527d2f7
+
 
 ### With Continuous Patch
   - We highlt reccomend you to not to use this version. Please don't use this. It still has a lot of vulnerabilities. 
