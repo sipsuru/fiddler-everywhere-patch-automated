@@ -12,22 +12,25 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
 
 ## Get Started
 
+ > [!IMPORTANT]
+ > Not patching 5.17.0+ when you trigger from "Custom Version - Workflow Dispatch" is Fixed now!
+
  > Only for Windows!
 
  * How even this Automated Patching Works?
    - Well, this automated patch do the same that you do mannually for patching. It downloads fiddler everywhere extract it. Remove, Replace, Edit, Move files and then, the patched application is ready.
 
  * Continuous or Workflow Dispatch? or Workflow Dispatch Latest?
-   - Workflow Dispatch - Latest - Patch the latest version (even it's released in github releases), and upload as artifact.
-   - Workflow Dispatch - Allows you to select a compatible version (5.9.0 +) and patch  and upload as a workflow artifact.
-   - Continuous - Patches FE as it's released by Telerik and make a github release of patched app.
+   - Latest Version - Workflow Dispatch - Patch the latest version, and upload as artifact.
+   - Custom Version - Workflow Dispatch - Allows you to select a compatible version (5.9.0 +) and patch  and upload as a workflow artifact.
+   - Continuous Patch - Patches FE as it's released by Telerik and make a github release of patched app.
 
-> We highly reccomend you to use ***Workflow Dispatch - Latest***, which patch the latest available version. or ***Workflow Dispatch*** which allows you to select a version starting from 5.9.0 +
+> We highly reccomend you to use ***Latest Version - Workflow Dispatch***, which patch the latest available version. or ***Custon Version - Workflow Dispatch*** which allows you to select a version starting from 5.9.0 +
 
-> ~`Note that Only `Workflow Dispatch` automation mentioned above is available *for now!*~
+> ~`Note that Only `Workflow Dispatch` automation mentioned above is not available *for now!*~
 
 
-### With Workflow Dispatch Latest
+### With `Latest Version - Workflow Dispatch`
   - Fork this repo.
   - Go to actions tab, Select `Latest Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch`
@@ -39,7 +42,13 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
     https://github.com/user-attachments/assets/437c3448-1ea2-4c99-9123-e56b1665a37b
 
 
-### With WorkFlow Dispatch
+### With `Custom Version - WorkFlow Dispatch`
+
+  > [!IMPORTANT]
+  > Before 21:25, Tuesday, September 24, 2024, there was a issue which won't patch 5.17.0+ versions (due to env error), if you trigger `Custom Version - WorkFlow Dispatch
+`. & it's fixed now!
+
+
   - Fork this repo
   - Go to actions tab, Select `Custom Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch` providing the version you want to patch
@@ -55,8 +64,8 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
     https://github.com/user-attachments/assets/1e9fa214-b9c9-469c-83f0-e5ae4527d2f7
 
 
-### With Continuous Patch
-  - We highlt reccomend you to not to use this version. Please don't use this. It still has a lot of vulnerabilities. 
+### With `Continuous Patch`
+  - We highly reccomend you to not to use this version. Please don't use this. It still has a lot of vulnerabilities. 
   - Fork this repo.
   - For Continuous Patch a `Repository Variable` named `LATEST_PATCHED_VERSION` is needed. You should put the current latest version that available in the [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history) but without 'V'. So for ex: `5.17.0`
   - The continuous patch patch newer versions than the version named in `LATEST_PATCHED_VERSION` and ***Currently you need to manually update this repository vairiable after patching a new version with this or else it'll keep patching the same version everyday!***
