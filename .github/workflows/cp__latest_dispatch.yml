@@ -133,7 +133,7 @@ jobs:
           path: yukihana/
           if-no-files-found: error
 
-  download-madjos-server:
+  download-msojocs-server:
     runs-on: windows-latest
 
     steps:
@@ -150,17 +150,17 @@ jobs:
 
       - name: Move the downloaded directory to the target folder
         run: |
-          mkdir -p madjos
-          Move-Item -Path server -Destination madjos/
+          mkdir -p msojocs
+          Move-Item -Path server -Destination msojocs/
 
-      - name: List files in the madjos/server directory
-        run: Get-ChildItem -Path madjos\server
+      - name: List files in the msojocs/server directory
+        run: Get-ChildItem -Path msojocs\server
 
-      - name: Upload madjos folder as an artifact
+      - name: Upload msojocs folder as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: madjos-patch
-          path: madjos/
+          name: msojocs-patch
+          path: msojocs/
           if-no-files-found: error
 
   download-fiddler-everywhere:
@@ -208,7 +208,7 @@ jobs:
 
     needs:
       - download-yukihana-patch
-      - download-madjos-server
+      - download-msojocs-server
       - download-fiddler-everywhere
       - scrape_fe_version
 
@@ -225,11 +225,11 @@ jobs:
           name: yukihana-patch
           path: yukihana-patch
 
-      - name: Download MadJos-Server
+      - name: Download msojocs-Server
         uses: actions/download-artifact@v4
         with:
-          name: madjos-patch
-          path: madjos-patch
+          name: msojocs-patch
+          path: msojocs-patch
 
       - name: Download FE
         uses: actions/download-artifact@v4
@@ -240,7 +240,7 @@ jobs:
       - name: List the contents of the downloaded artifacts
         run: |
           Get-ChildItem -Recurse yukihana-patch
-          Get-ChildItem -Recurse madjos-patch
+          Get-ChildItem -Recurse msojocs-patch
           Get-ChildItem -Recurse fe_app64
         shell: pwsh
 
@@ -284,7 +284,7 @@ jobs:
 
       - name: Copy Server Folder
         run: |
-          $source_server_folder = "madjos-patch/server/file"
+          $source_server_folder = "msojocs-patch/server/file"
           $destination_server_folder = "FE/resources/app/out"
           
           if (Test-Path $source_server_folder) {
@@ -301,7 +301,7 @@ jobs:
 
           $new_main = "FE/resources/app/out/main.original.js"
 
-          $source_index = "madjos-patch/server/index.js"
+          $source_index = "msojocs-patch/server/index.js"
           $index_content = Get-Content -Path $source_index -Raw
           
           if ((Test-Path $source_main) -and (Test-Path $source_index)) {
@@ -352,12 +352,12 @@ jobs:
             Write-Host "No file found starting with 'main' in the specified directory. (Main,XXX.js)"
           }
 
-      - name: Clean madjos-patch
+      - name: Clean msojocs-patch
         run: |
-          if (Test-Path madjos-patch) {
-            Remove-Item -Path "madjos-patch" -Recurse
+          if (Test-Path msojocs-patch) {
+            Remove-Item -Path "msojocs-patch" -Recurse
           } else {
-            Write-Host "madjos-patch Folder not found"
+            Write-Host "msojocs-patch Folder not found"
           }
         
       - name: Add patch.json
