@@ -87,7 +87,7 @@ jobs:
       - name: Compare Patching Version Compatible with 5.17.0
         id: version_check
         run: |
-          $patchingVersion = ${{ env.VERSION_TO_PATCH }}
+          $patchingVersion = $env:VERSION_TO_PATCH
           $compareVersion = "5.17.0"
    
           if (-not [string]::IsNullOrEmpty($patchingVersion)) {
