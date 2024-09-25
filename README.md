@@ -10,7 +10,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
 
 ![Unlimited Trial](https://github.com/user-attachments/assets/e9c83778-27fa-456a-96e6-07bb0cd7f4ad)
 
-## Get Started
+## Get Started.
 
  > [!IMPORTANT]
  > Not patching 5.17.0+ when you trigger from "Custom Version - Workflow Dispatch" is Fixed now!
