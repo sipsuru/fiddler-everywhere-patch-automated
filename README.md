@@ -36,7 +36,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   - Fork this repo.
   - Go to actions tab, Select `Latest Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch`
-  - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
+  - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched`
   - Extract it. Run it
 
   * *Here how you do it...*
@@ -54,7 +54,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   - Fork this repo
   - Go to actions tab, Select `Custom Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch` providing the version you want to patch
-  - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
+  - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched`
   - Extract it. Run it
 
   > [!WARNING]
@@ -76,7 +76,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   - The continuous patch patch newer versions than the version named in `LATEST_PATCHED_VERSION` and ***Currently you need to manually update this repository vairiable after patching a new version with this or else it'll keep patching the same version everyday!***
   - The action workflows triggers 1t 00:00 UTC everyday, and if it found a new version, the artifact will be uploaded.
     > Causion: The action won't upload patched app as release for now. So you've to manually check if a new version is patched (everyday) by refering artifact section of the runned actions.
-  - If Telerik has uploaded a new version, if it's patched in a continuous trigger, download the artifact named like `Fiddler-Everywhere-VX.X.X-Patched-Maual-Dispatched`
+  - If Telerik has uploaded a new version, if it's patched in a continuous trigger, download the artifact named like `Fiddler-Everywhere-VX.X.X-Patched`
   - Extract it. Run it
 
   > [!WARNING]
