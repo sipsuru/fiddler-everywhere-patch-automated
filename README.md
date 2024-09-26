@@ -1,3 +1,5 @@
+## [中文翻译版](README_CN.md)
+
 # Fiddler Everywhere Patch (Automated)
 Guides you to Patch Fiddler Everywhere on Windows Automatically. 
 > Parent Repo: https://github.com/msojocs/fiddler-everywhere-enhance
