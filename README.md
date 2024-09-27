@@ -60,7 +60,7 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
   - Extract it. Run it
 
   > [!WARNING]
-  > Please Note that Only Versions Up to 5.9.0 `( 5.0.9 + )` are supported.
+  > Please Note that Only Versions Up to 5.9.0 `( 5.9.0 + )` are supported.
   
   > You can find a list of releases here - [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history)
 
