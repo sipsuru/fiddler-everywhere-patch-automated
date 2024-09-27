@@ -57,7 +57,7 @@
   - 解压缩并运行它。
 
   > [!WARNING]
-  > 请注意，当前仅支持 5.9.0 及以上版本（5.0.9+）。
+  > 请注意，当前仅支持 5.9.0 及以上版本（5.9.0+）。
 
   > 您可以在此找到发行历史记录 - [Release History](https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history)
 
