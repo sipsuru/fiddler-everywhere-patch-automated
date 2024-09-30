@@ -15,7 +15,13 @@ This's the guide for applying patch mannually. There'll be a repo guiding you tr
 ## Get Started.
 
  > [!IMPORTANT]
+ > Failing to download Yukihana Patch for 5.17.0 + (Because continuous release & latest release didn't contain windows patches), is fixed now. 
+
+ > [!IMPORTANT]
  > Not patching 5.17.0+ when you trigger from "Custom Version - Workflow Dispatch" is Fixed now!
+
+ > [!TIP]
+ > You must always check if your fork is up to date so no fails. 
 
  > [!NOTE]
  > Only for Windows!
