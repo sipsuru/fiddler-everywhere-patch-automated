@@ -134,7 +134,7 @@ jobs:
 
       - name: Set Yukihana Release (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_RELEASE=continuous" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "YUKIHANA_RELEASE=v1.1.0" | Out-File -Append -FilePath $env:GITHUB_ENV
 
       - name: Set Yukihana Release (< 5.17.0) 
         if: env.IS_COMPATIBLE_CONT == 'false'
