@@ -2,64 +2,12 @@ name: Latest Version - Workflow Dispatch
 
 on:
   workflow_dispatch:
-    inputs:
-      username:
-        type: string
-        required: false
-        
-      email:
-        type: string
-        required: false
-        
+
 jobs:
-  do_inputs:
-    runs-on: windows-latest
-
-    outputs: 
-      username: ""
-      email: ""
-
-    steps:
-      - name: Manage Inputs
-        id: manage_inputs
-        run: |
-          $username_input = "${{ github.event.inputs.username }}"
-          $email_input = "${{ github.event.inputs.email }}"
-
-          $username_var = "${{ vars.USERNAME }}"
-          $email_var = "${{ vars.EMAIL }}"
-          
-          if ($username_input -and $email_input) {
-            echo "USERNAME=$username_input" | Out-File -Append -FilePath $env:GITHUB_ENV
-            echo "EMAIL=$email_input" | Out-File -Append -FilePath $env:GITHUB_ENV
-            
-            Write-Host "Use inputs"
-          } else {
-            Write-Host "Trying to use Repo-Var"
-
-            if (($username_var -ne "") -and ($email_var -ne "")) {
-              echo "USERNAME=$username_var" | Out-File -Append -FilePath $env:GITHUB_ENV
-              echo "EMAIL=$email_var" | Out-File -Append -FilePath $env:GITHUB_ENV
-             
-              Write-Host "Use Repo-Var"
-            } else {
-              echo "USERNAME=Sipsuru" | Out-File -Append -FilePath $env:GITHUB_ENV
-              echo "EMAIL=github.com/sipsuru" | Out-File -Append -FilePath $env:GITHUB_ENV
-              
-              Write-Host "Using default"
-            }
-          }
-
-          echo "username=$env:USERNAME" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
-          echo "email=$env:EMAIL" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
-
   scrape_fe_version:
     runs-on: windows-latest
     outputs:
       scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
-
-    needs:
-      do_inputs
 
     env:
       NODE_JS_VERSION: 22.9.0
@@ -263,7 +211,6 @@ jobs:
       - download-msojocs-server
       - download-fiddler-everywhere
       - scrape_fe_version
-      - do_inputs
 
     env:
       SCRAPED_VERSION: ${{ needs.scrape_fe_version.outputs.scraped_version }}
@@ -404,27 +351,6 @@ jobs:
           } else {
             Write-Host "No file found starting with 'main' in the specified directory. (Main,XXX.js)"
           }
-
-      - name: Set USERNAME & EMAIL
-        run: |
-          $jsonFilePath = 'FE/resources/app/out/file/identity.getfiddler.com/oauth/token.json'
-          $jsonContent = Get-Content -Path $jsonFilePath -Raw | ConvertFrom-Json
-              
-          if ($jsonFilePath) {
-            # Modify the email, firstName, and lastName
-            $jsonContent.user_info.email = $env:EMAIL    # Change to your new email
-            $jsonContent.user_info.firstName = $env:USERNAME       # Change to your new first name
-            $jsonContent.user_info.lastName = ""         # Change to your new last name
-            
-            # Convert back to JSON
-            $updatedJson = $jsonContent | ConvertTo-Json -Depth 3  # Increase depth if needed
-            
-            # Write the updated JSON back to the file
-            Set-Content -Path $jsonFilePath -Value $updatedJson
-            
-          } else {
-            Write-Host "No file found starting with 'token.js' in the specified directory."
-          }        
 
       - name: Clean msojocs-patch
         run: |
