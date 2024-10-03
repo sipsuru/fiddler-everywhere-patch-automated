@@ -410,7 +410,7 @@ jobs:
           $jsonFilePath = 'FE/resources/app/out/file/identity.getfiddler.com/oauth/token.json'
           $jsonContent = Get-Content -Path $jsonFilePath -Raw | ConvertFrom-Json
               
-          if ($file) {
+          if ($jsonFilePath) {
             # Modify the email, firstName, and lastName
             $jsonContent.user_info.email = $env:EMAIL    # Change to your new email
             $jsonContent.user_info.firstName = $env:USERNAME       # Change to your new first name
