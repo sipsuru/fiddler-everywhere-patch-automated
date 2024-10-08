@@ -35,7 +35,7 @@ This's the guide for applying patch automatically.
  * How even this Automated Patching Works?
    - Well, this automated patch do the same that you do mannually for patching. It downloads fiddler everywhere extract it. Remove, Replace, Edit, Move files and then, the patched application is ready.
 
- * Continuous or Workflow Dispatch? or Workflow Dispatch Latest?
+ * Workflow Dispatch? or Workflow Dispatch Latest?
    - Latest Version - Workflow Dispatch - Patch the latest version, and upload as artifact.
    - Custom Version - Workflow Dispatch - Allows you to select a compatible version (5.9.0 +) and patch  and upload as a workflow artifact.
 
