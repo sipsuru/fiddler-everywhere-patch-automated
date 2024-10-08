@@ -1,24 +1,28 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-const fs = require('fs');
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import * as fs from 'fs';
 
-async function getLatestVersion() {
+async function getLatestVersion(): Promise<void> {
   try {
-    const url = 'https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history';
+    const url: string = 'https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history';
     const { data } = await axios.get(url);
 
     const $ = cheerio.load(data);
 
     // Adjust the selector to match the layout of the page
-    const version = $('a:contains("Fiddler Everywhere v")')
+    const version: string = $('a:contains("Fiddler Everywhere v")')
       .first()
       .text()
-      .match(/(\d+\.\d+\.\d+)/)[0]; // Update regex to capture version without 'v'
+      .match(/(\d+\.\d+\.\d+)/)?.[0] || ''; // Update regex to capture version without 'v'
 
-    console.log(`Latest Version: ${version}`);
-
-    // Save the version to a file
-    fs.writeFileSync('latest_version.txt', version);
+    if (version) {
+      console.log(`Latest Version: ${version}`);
+      
+      // Save the version to a file
+      fs.writeFileSync('latest_version.txt', version);
+    } else {
+      console.error('No version found.');
+    }
   } catch (error) {
     console.error('Error fetching version:', error);
   }
