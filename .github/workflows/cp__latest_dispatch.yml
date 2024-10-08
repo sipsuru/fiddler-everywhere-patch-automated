@@ -76,6 +76,14 @@ jobs:
       - name: Set IS_COMPATIBLE_CONT as Output
         id: is-compatible-cont
         run: echo "is-compatible-cont=${{ env.IS_COMPATIBLE_CONT }}" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
+
+      - name: Set Yui name  (>= 5.17.0)
+        if: env.IS_COMPATIBLE_CONT == 'true'
+        run: echo "YUI_NAME=yui" | Out-File -Append -FilePath $env:GITHUB_ENV
+
+      - name: Set Yui name  (< 5.17.0)
+        if: env.IS_COMPATIBLE_CONT == 'false'
+        run: echo "YUI_NAME=yukihana" | Out-File -Append -FilePath $env:GITHUB_ENV
         
       - name: Set Yui fiddler name (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
@@ -108,8 +116,8 @@ jobs:
         run: |
           try {
             # Build the download URLs
-            $YuiFiddlerUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/yui-$env:Yui_FIDDLER_NAME-win32-x86_64-$env:Yui_RELEASE.dll"
-            $YuiHostPolicyUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/yui-hostpolicy-win32-x86_64-$env:Yui_RELEASE.dll"
+            $YuiFiddlerUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/$env:YUI_NAME-$env:Yui_FIDDLER_NAME-win32-x86_64-$env:Yui_RELEASE.dll"
+            $YuiHostPolicyUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/$env:YUI_NAME-hostpolicy-win32-x86_64-$env:Yui_RELEASE.dll"
             
             # Print the URLs to ensure they're correct
             Write-Host "Downloading files from $env:Yui_RELEASE"
