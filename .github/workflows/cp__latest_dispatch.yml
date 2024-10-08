@@ -108,8 +108,8 @@ jobs:
         run: |
           try {
             # Build the download URLs
-            $yukihanaFiddlerUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-$env:YUKIHANA_FIDDLER_NAME-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
-            $yukihanaHostPolicyUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-hostpolicy-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
+            $yukihanaFiddlerUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yui-$env:YUKIHANA_FIDDLER_NAME-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
+            $yukihanaHostPolicyUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yui-hostpolicy-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
             
             # Print the URLs to ensure they're correct
             Write-Host "Downloading files from $env:YUKIHANA_RELEASE"
