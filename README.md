@@ -58,11 +58,6 @@ This's the guide for applying patch automatically.
 
 ### With `Custom Version - WorkFlow Dispatch`
 
-  > [!IMPORTANT]
-  > Before 21:25, Tuesday, September 24, 2024, there was a issue which won't patch 5.17.0+ versions (due to env error), if you trigger `Custom Version - WorkFlow Dispatch
-`. & it's fixed now!
-
-
   - Fork this repo
   - Go to actions tab, Select `Custom Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch` providing the version you want to patch
