@@ -108,8 +108,8 @@ jobs:
         run: |
           try {
             # Build the download URLs
-            $YuiFiddlerUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/Yui-$env:Yui_FIDDLER_NAME-win32-x86_64-$env:Yui_RELEASE.dll"
-            $YuiHostPolicyUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/Yui-hostpolicy-win32-x86_64-$env:Yui_RELEASE.dll"
+            $YuiFiddlerUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/yui-$env:Yui_FIDDLER_NAME-win32-x86_64-$env:Yui_RELEASE.dll"
+            $YuiHostPolicyUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/yui-hostpolicy-win32-x86_64-$env:Yui_RELEASE.dll"
             
             # Print the URLs to ensure they're correct
             Write-Host "Downloading files from $env:Yui_RELEASE"
