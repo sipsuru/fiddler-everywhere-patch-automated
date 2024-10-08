@@ -75,7 +75,7 @@ jobs:
           }
         shell: pwsh
    
-  download-yukihana-patch:
+  download-Yui-patch:
     runs-on: windows-latest
     needs: 
       - compare-versions
@@ -88,7 +88,7 @@ jobs:
 
     outputs:
       is-compatible-cont: ${{ steps.is-compatible-cont.outputs.is-compatible-cont }}
-      yukihana-fiddler-name: ${{ steps.yukihana-fiddler-name.outputs.yukihana-fiddler-name }}
+      Yui-fiddler-name: ${{ steps.Yui-fiddler-name.outputs.Yui-fiddler-name }}
 
     steps:
       - name: Compare SCRAPED_VERSION with 5.17.0
@@ -113,48 +113,48 @@ jobs:
         id: is-compatible-cont
         run: echo "is-compatible-cont=${{ env.IS_COMPATIBLE_CONT }}" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
         
-      - name: Set Yukihana fiddler name (>= 5.17.0)
+      - name: Set Yui fiddler name (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_FIDDLER_NAME=fiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "Yui_FIDDLER_NAME=fiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
 
-      - name: Set Yukihana fiddler name (< 5.17.0)
+      - name: Set Yui fiddler name (< 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'false'
-        run: echo "YUKIHANA_FIDDLER_NAME=libfiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "Yui_FIDDLER_NAME=libfiddler" | Out-File -Append -FilePath $env:GITHUB_ENV
 
-      - name: Set YUKIHANA_FIDDLER_NAME as Output
-        id: yukihana-fiddler-name
-        run: echo "yukihana-fiddler-name=${{ env.YUKIHANA_FIDDLER_NAME }}" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
+      - name: Set Yui_FIDDLER_NAME as Output
+        id: Yui-fiddler-name
+        run: echo "Yui-fiddler-name=${{ env.Yui_FIDDLER_NAME }}" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
 
-      - name: Create yukihana directory
+      - name: Create Yui directory
         run: |
-          if (-Not (Test-Path "yukihana")) {
-            New-Item -ItemType Directory -Path "yukihana"
+          if (-Not (Test-Path "Yui")) {
+            New-Item -ItemType Directory -Path "Yui"
           }
         shell: pwsh
 
-      - name: Set Yukihana Release (>= 5.17.0)
+      - name: Set Yui Release (>= 5.17.0)
         if: env.IS_COMPATIBLE_CONT == 'true'
-        run: echo "YUKIHANA_RELEASE=continuous" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "Yui_RELEASE=continuous" | Out-File -Append -FilePath $env:GITHUB_ENV
 
-      - name: Set Yukihana Release (< 5.17.0) 
+      - name: Set Yui Release (< 5.17.0) 
         if: env.IS_COMPATIBLE_CONT == 'false'
-        run: echo "YUKIHANA_RELEASE=v1.0.9" | Out-File -Append -FilePath $env:GITHUB_ENV
+        run: echo "Yui_RELEASE=v1.0.9" | Out-File -Append -FilePath $env:GITHUB_ENV
         
-      - name: Download Yukihana Patch
+      - name: Download Yui Patch
         run: |
           try {
             # Build the download URLs
-            $yukihanaFiddlerUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-$env:YUKIHANA_FIDDLER_NAME-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
-            $yukihanaHostPolicyUrl = "https://github.com/project-yukihana/Yukihana-patch/releases/download/$env:YUKIHANA_RELEASE/yukihana-hostpolicy-win32-x86_64-$env:YUKIHANA_RELEASE.dll"
+            $YuiFiddlerUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/Yui-$env:Yui_FIDDLER_NAME-win32-x86_64-$env:Yui_RELEASE.dll"
+            $YuiHostPolicyUrl = "https://github.com/project-yui/Yui-patch/releases/download/$env:Yui_RELEASE/Yui-hostpolicy-win32-x86_64-$env:Yui_RELEASE.dll"
             
             # Print the URLs to ensure they're correct
-            Write-Host "Downloading files from $env:YUKIHANA_RELEASE"
-            Write-Host "Yukihana Fiddler URL: $yukihanaFiddlerUrl"
-            Write-Host "Yukihana HostPolicy URL: $yukihanaHostPolicyUrl"
+            Write-Host "Downloading files from $env:Yui_RELEASE"
+            Write-Host "Yui Fiddler URL: $YuiFiddlerUrl"
+            Write-Host "Yui HostPolicy URL: $YuiHostPolicyUrl"
 
             # Download the files
-            Invoke-WebRequest -Uri $yukihanaFiddlerUrl -OutFile "yukihana\$env:YUKIHANA_FIDDLER_NAME.dll"
-            Invoke-WebRequest -Uri $yukihanaHostPolicyUrl -OutFile "yukihana\hostpolicy.dll"
+            Invoke-WebRequest -Uri $YuiFiddlerUrl -OutFile "Yui\$env:Yui_FIDDLER_NAME.dll"
+            Invoke-WebRequest -Uri $YuiHostPolicyUrl -OutFile "Yui\hostpolicy.dll"
           }
           catch {
             Write-Error "Failed to download the patch files. Error details: $_"
@@ -162,11 +162,11 @@ jobs:
           }
         shell: pwsh
       
-      - name: Upload yukihana folder as an artifact
+      - name: Upload Yui folder as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yukihana-patch
-          path: yukihana/
+          name: Yui-patch
+          path: Yui/
           if-no-files-found: error
 
   download-msojocs-server:
@@ -247,7 +247,7 @@ jobs:
 
     needs:
       - compare-versions
-      - download-yukihana-patch
+      - download-Yui-patch
       - download-msojocs-server
       - download-fiddler-everywhere
       - scrape_fe_version
@@ -262,8 +262,8 @@ jobs:
       - name: Download Yukuhana-Patch
         uses: actions/download-artifact@v4
         with:
-          name: yukihana-patch
-          path: yukihana-patch
+          name: Yui-patch
+          path: Yui-patch
 
       - name: Download msojocs-Server
         uses: actions/download-artifact@v4
@@ -279,7 +279,7 @@ jobs:
 
       - name: List the contents of the downloaded artifacts
         run: |
-          Get-ChildItem -Recurse yukihana-patch
+          Get-ChildItem -Recurse Yui-patch
           Get-ChildItem -Recurse msojocs-patch
           Get-ChildItem -Recurse fe_app64
         shell: pwsh
@@ -289,14 +289,14 @@ jobs:
 
       - name: Patch fiddler.dll / libfiddler.dll
         run: |
-          $original_fiddler = "FE/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
-          $yukihana_fiddler = "yukihana-patch/${{ needs.download-yukihana-patch.outputs.yukihana-fiddler-name }}.dll"
+          $original_fiddler = "FE/${{ needs.download-Yui-patch.outputs.Yui-fiddler-name }}.dll"
+          $Yui_fiddler = "Yui-patch/${{ needs.download-Yui-patch.outputs.Yui-fiddler-name }}.dll"
           
-          if ((Test-Path $original_fiddler) -and (Test-Path $yukihana_fiddler)) {
-            Copy-Item -Path $yukihana_fiddler -Destination $original_fiddler -Force
-            Write-Host "Replaced $original_fiddler with $yukihana_fiddler"
+          if ((Test-Path $original_fiddler) -and (Test-Path $Yui_fiddler)) {
+            Copy-Item -Path $Yui_fiddler -Destination $original_fiddler -Force
+            Write-Host "Replaced $original_fiddler with $Yui_fiddler"
           } else {
-            Write-Host "fiddler / libfiddler or yukihana patch not found"
+            Write-Host "fiddler / libfiddler or Yui patch not found"
           }
         shell: pwsh
 
@@ -304,22 +304,22 @@ jobs:
         run: |
           $original_hostpolicy = "FE/resources/app/out/WebServer/hostpolicy.dll"
           $original_copy_hostpolicy = "FE/resources/app/out/WebServer/hostpolicy.original.dll"
-          $yukihana_hostpolicy = "yukihana-patch/hostpolicy.dll"
+          $Yui_hostpolicy = "Yui-patch/hostpolicy.dll"
 
-          if ((Test-Path $original_hostpolicy) -and (Test-Path $yukihana_hostpolicy)) {
+          if ((Test-Path $original_hostpolicy) -and (Test-Path $Yui_hostpolicy)) {
             Move-Item -Path $original_hostpolicy -Destination $original_copy_hostpolicy
-            Copy-Item -Path $yukihana_hostpolicy -Destination $original_hostpolicy
-            Write-Host "Renamed $original_fiddler with $original_copy_hostpolicy & Applied Yukihana Patch"
+            Copy-Item -Path $Yui_hostpolicy -Destination $original_hostpolicy
+            Write-Host "Renamed $original_fiddler with $original_copy_hostpolicy & Applied Yui Patch"
           } else {
-            Write-Host "original hostpolicy.dll or yukihana hotstpolicy not found"
+            Write-Host "original hostpolicy.dll or Yui hotstpolicy not found"
           }
 
-      - name: Clean yukihana-patch
+      - name: Clean Yui-patch
         run: |
-          if (Test-Path yukihana-patch) {
-            Remove-Item -Path "yukihana-patch" -Recurse
+          if (Test-Path Yui-patch) {
+            Remove-Item -Path "Yui-patch" -Recurse
           } else {
-            Write-Host "yukihana-patch Folder not found"
+            Write-Host "Yui-patch Folder not found"
           }
 
       - name: Copy Server Folder
