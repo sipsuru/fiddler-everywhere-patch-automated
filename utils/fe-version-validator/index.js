@@ -1,16 +1,16 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-const fs = require('fs');
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import * as fs from 'fs';
 
-async function getAllVersions() {
+async function getAllVersions(): Promise<void> {
   try {
-    const url = 'https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history';
+    const url: string = 'https://www.telerik.com/support/whats-new/fiddler-everywhere/release-history';
     const { data } = await axios.get(url);
 
     const $ = cheerio.load(data);
 
     // Extract all versions containing "Fiddler Everywhere v"
-    const versions = [];
+    const versions: string[] = [];
 
     $('a:contains("Fiddler Everywhere v")').each((i, el) => {
       const version = $(el).text().match(/(\d+\.\d+\.\d+)/); // Regex to capture version number
