@@ -44,6 +44,9 @@
 > ***自定义版本 - Workflow Dispatch*** 也允许您选择从 5.9.0 + 开始的版本。
 
 ### 使用 `Latest Version - Workflow Dispatch`
+[![](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp__latest_dispatch.yml/badge.svg)](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp__latest_dispatch.yml)
+
+
 - Fork 此仓库。  
 - 转到 actions 标签，选择 `Latest Version - Workflow Dispatch` 工作流。  
 - 使用 `workflow dispatch` 触发它。  
@@ -55,6 +58,7 @@
   https://github.com/user-attachments/assets/437c3448-1ea2-4c99-9123-e56b1665a37b
 
 ### 使用 `Custom Version - WorkFlow Dispatch`
+[![](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp_dispatch.yml/badge.svg)](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp_dispatch.yml)
 
 - Fork 此仓库。  
 - 转到 actions 标签，选择 `Custom Version - Workflow Dispatch` 工作流。  
