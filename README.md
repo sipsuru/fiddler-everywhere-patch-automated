@@ -44,7 +44,9 @@ This's the guide for applying patch automatically.
 > ***Custon Version - Workflow Dispatch*** allows you to select a version starting from 5.9.0 + too.
 
 
-### With `Latest Version - Workflow Dispatch`
+### With `Latest Version - Workflow Dispatch` 
+[![](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp__latest_dispatch.yml/badge.svg)](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp__latest_dispatch.yml)
+
   - Fork this repo.
   - Go to actions tab, Select `Latest Version - Workflow Dispatch` workflow.
   - Trigger it with `workflow diaptch`
@@ -56,7 +58,8 @@ This's the guide for applying patch automatically.
     https://github.com/user-attachments/assets/437c3448-1ea2-4c99-9123-e56b1665a37b
 
 
-### With `Custom Version - WorkFlow Dispatch`
+### With `Custom Version - WorkFlow Dispatch` 
+[![](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp_dispatch.yml/badge.svg)](https://github.com/sipsuru/fiddler-everywhere-patch-automated/actions/workflows/cp_dispatch.yml)
 
   - Fork this repo
   - Go to actions tab, Select `Custom Version - Workflow Dispatch` workflow.
