@@ -14,8 +14,11 @@
 
 ## 开始使用。
 
+> [!IMPORTANT]
+> 无法下载所有无法下载所有 FE 版本的 msojocs 服务器（因为 msojocs 将 master 分支重命名为 main），现已修复。
+
 > [!IMPORTANT]  
-> 无法下载适用于 FE 5.17.0 以下版本的 Yukihana Patch（因为文件名仍包含 `yukihana` 而不是 `yui`，除非使用 `Yui-Patch 1.1.3 +`）。
+> 无法下载 FE 版本低于 5.17.0 的 Yukihana Patch（因为文件名仍包含 yukihana 而不是 yui，除了 Yui-Patch 1.1.3+），现已修复。
 
 > [!IMPORTANT]  
 > 无法下载适用于所有 FE 版本的 Yui Patch（因为组织和仓库名已从 `Yukihana` 重命名为 `Yui`），问题已修复。
