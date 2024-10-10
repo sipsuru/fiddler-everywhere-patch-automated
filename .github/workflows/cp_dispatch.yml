@@ -187,7 +187,7 @@ jobs:
       - name: Configure sparse-checkout to download the server directory
         run: |
           echo "server" | Out-File -Append -FilePath .git\info\sparse-checkout
-          git pull origin master
+          git pull origin main
 
       - name: Move the downloaded directory to the target folder
         run: |
