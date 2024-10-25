@@ -52,7 +52,7 @@ This's the guide for applying patch automatically.
 
   - Fork this repo.
   - Go to actions tab, Select `Latest Version - Workflow Dispatch` workflow.
-  - Trigger it with `workflow diaptch`
+  - Trigger it with `workflow dispatch`
   - After a successful trigger download artifact that named like `Fiddler-Everywhere-VX.X.X-Patched`
   - Extract it. Run it
 
