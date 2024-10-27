@@ -19,7 +19,7 @@ jobs:
       is_valid: ${{ steps.get_validity.outputs.is_valid }}
 
     env:
-      NODE_JS_VERSION: 22.9.0
+      NODE_JS_VERSION: 23.1.0
 
     steps:
       - uses: actions/checkout@v4
