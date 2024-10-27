@@ -10,7 +10,7 @@ jobs:
       scraped_version: ${{ steps.set_scraped_version.outputs.scraped_version }}
 
     env:
-      NODE_JS_VERSION: 22.9.0
+      NODE_JS_VERSION: 23.1.0
 
     steps:
       - uses: actions/checkout@v4
