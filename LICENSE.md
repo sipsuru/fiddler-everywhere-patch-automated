@@ -1,5 +1,5 @@
 # Fiddler Everywhere Patch Educational Non-Commercial License (FE Patch ENCL)
-### Version 1.0, September 24, 2024
+### Version 1.0.1, November 13, 2024
 
 ## Disclaimer
 ***This software, "Fiddler Everywhere Patch (Automated/Manual)", is strictly intended & limited for educational purposes only!***
@@ -26,7 +26,7 @@ Incorporate the software into any commercial products or services.
 Charge for the distribution, licensing, or use of the software.
 
 ## 3. Educational Use Disclaimer
-***"Fiddler Everywhere Patch (Automated/Manual)" is intended for educational purposes only.*** Dragon Developers provides this software as a tool for learning about reverse engineering and software development. The authors do not endorse illegal activities, including but not limited to cracking, piracy, or bypassing digital protections.
+***"Fiddler Everywhere Patch (Automated/Manual)" is intended for educational purposes only.*** Dragon Developers provides this software as a tool for learning about reverse engineering, software development & usage of Github Actions Workflows. The authors do not endorse illegal activities, including but not limited to cracking, piracy, or bypassing digital protections.
 
 ## 4. No Warranty
 This software is provided "as-is" with no warranties of any kind. Dragon Developers shall not be held liable for any damages arising from the use, modification, or distribution of this software. Users are responsible for complying with all applicable laws.
