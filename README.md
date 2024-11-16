@@ -12,6 +12,10 @@ This's the guide for applying patch automatically.
 
 ![Unlimited Trial](https://github.com/user-attachments/assets/e9c83778-27fa-456a-96e6-07bb0cd7f4ad)
 
+
+> [!NOTE]
+> Look forward for Linux Support.
+
 ## Get Started.
 
  > [!IMPORTANT]
