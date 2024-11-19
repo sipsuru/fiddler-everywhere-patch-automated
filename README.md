@@ -17,7 +17,7 @@ This's the guide for applying patch automatically.
 > Look forward for Linux Support.
 
 ## Get Started.
-
+<!--
  > [!IMPORTANT]
  > Failing to download msojocs server for all FE versions (Because msojocs renamed `master` branch to `main`), is fixed now
 
@@ -26,19 +26,19 @@ This's the guide for applying patch automatically.
 
  > [!IMPORTANT]
  > Failing to download Yui Patch for all FE versions (Because the organization and repo-name renamed from `Yukihana` `-->` `Yui`), is fixed now.
-
+<!--
  > [!IMPORTANT]
  > Failing to download Yukihana Patch for 5.17.0 + (Because continuous release & latest release didn't contain windows patches), is fixed now. 
 
  > [!IMPORTANT]
  > Not patching 5.17.0+ when you trigger from "Custom Version - Workflow Dispatch" is Fixed now!
-
+-->
  > [!TIP]
  > You must always check if your fork is up to date so no fails. 
-
+<!--
  > [!NOTE]
  > Only for Windows!
-
+-->
  * How even this Automated Patching Works?
    - Well, this automated patch do the same that you do mannually for patching. It downloads fiddler everywhere extract it. Remove, Replace, Edit, Move files and then, the patched application is ready.
 
