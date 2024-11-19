@@ -13,7 +13,7 @@
 ![无限试用](https://github.com/user-attachments/assets/e9c83778-27fa-456a-96e6-07bb0cd7f4ad)
 
 ## 开始使用。
-
+<!--
 > [!IMPORTANT]
 > 无法下载所有无法下载所有 FE 版本的 msojocs 服务器（因为 msojocs 将 master 分支重命名为 main），现已修复。
 
@@ -28,13 +28,13 @@
 
 > [!IMPORTANT]  
 > 当您通过“自定义版本 - Workflow Dispatch”触发时，未对 5.17.0 + 版本进行补丁，问题已修复！
-
+-->
 > [!TIP]  
 > 您必须始终检查您的 fork 是否是最新的，以避免失败。
-
+<!-- 
 > [!NOTE]  
 > 仅适用于 Windows！
-
+-->
 * 这个自动化补丁究竟是如何工作的？  
   - 实际上，这个自动化补丁执行的操作与您手动打补丁的操作相同。它下载 Fiddler Everywhere 并解压。删除、替换、编辑、移动文件，之后应用补丁后的程序即可使用。
 
