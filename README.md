@@ -25,7 +25,7 @@ This's the guide for applying patch automatically.
  > Failing to download Yukihana Patch for FE versions < 5.17.0 (Because file names sctill contains `yukihana` not `yui` except `Yui-Patch 1.1.3 +`), is fixed now..
 
  > [!IMPORTANT]
- > Failing to download Yui Patch for all FE versions (Because the organization and repo-name renamed from `Yukihana` `-->` `Yui`), is fixed now.
+ > Failing to download Yui Patch for all FE versions (Because the organization and repo-name renamed from `Yukihana` `--><!--` `Yui`), is fixed now.
 <!--
  > [!IMPORTANT]
  > Failing to download Yukihana Patch for 5.17.0 + (Because continuous release & latest release didn't contain windows patches), is fixed now. 
