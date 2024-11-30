@@ -4,6 +4,9 @@
 Guides you to Patch Fiddler Everywhere on Windows Automatically. 
 > Parent Repo: https://github.com/msojocs/fiddler-everywhere-enhance
 
+> [!NOTE]
+> Note that the repo is transfered from `sipsuru` to `auto-yui-patch`
+
 ## Special: You can also patch manually by yourself. Visit [This repo](https://github.com/sipsuru/fiddler-everywhere-patch-manual)
 
 ## What and How?
